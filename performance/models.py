@@ -253,8 +253,8 @@ class SparkInformation(ProjectInformation, Bottleneck):
 
     def __str__(self):
         return '{0}: Time(s)={1} | Data Size={2} | Partition Size={3} | '\
-    'Processor Number={4}'.format(self.test_application, self.data_size,
-            self.parition_size, self.processor_number)
+    'Processor Number={4}'.format(self.test_application, self.result_times,
+            self.data_size, self.parition_size, self.processor_number)
 
     class Meta:
         abstract = False
