@@ -533,7 +533,7 @@ class WebServingHardwareEnvironment(models.Model):
     There is a link about "Field name “hiding” is not permitted"
     https://docs.djangoproject.com/en/dev/topics/db/models/#field-name-hiding-is-not-permitted
     """
-    machine_side = models.CharField('Frontend/Backend/Client',
+    machine_side = models.CharField('Machine Role',
             choices=Machine_Side_Choices, max_length=32, default='client_side'
             )
     machine_name = models.CharField('Machine Name',
