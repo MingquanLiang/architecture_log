@@ -47,7 +47,8 @@ class HardwareEnvironment(models.Model):
             )
     cpu_type = models.CharField('CPU Type', max_length=16)
     architecture_type = models.CharField('Architecture',
-            choices=Architecture_Type_Choices, max_length=32, default='powerpc'
+            choices=Architecture_Type_Choices, max_length=32,
+            default='powerpc',
             )
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
@@ -81,8 +82,8 @@ class Bottleneck(models.Model):
         abstract = True
 
 
-#####################       Application From Here          #####################
-################################################################################
+#####################       Application From Here          ###################
+##############################################################################
 class DataCachingInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Data Caching',
             editable=False)
@@ -122,7 +123,7 @@ class DataCachingMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class LmbenchInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Lmbench',
             editable=False)
@@ -139,8 +140,8 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
 
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Problem Size={3} | Processor'\
-    ' Number={4}'.format(self.test_application, self.result_time, self.app_name,
-            self.problem_size, self.processor_number)
+    ' Number={4}'.format(self.test_application, self.result_time, 
+            self.app_name, self.problem_size, self.processor_number)
 
     class Meta:
         abstract = False
@@ -156,7 +157,7 @@ class LmbenchMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class ParsecInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Parsec',
             editable=False)
@@ -165,7 +166,8 @@ class ParsecInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time', max_digits=12, decimal_places=4)
+    result_time = models.DecimalField('Result - Time', max_digits=12,
+            decimal_places=4)
     app_name = models.CharField('app name', max_length=32)
     #problem_size = models.CharField('Problem Size', max_length=16)
     #processor_number = models.PositiveSmallIntegerField('Processor Number')
@@ -191,7 +193,7 @@ class ParsecMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SiriusSuitInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Sirius-suit',
             editable=False)
@@ -212,10 +214,10 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
 
     def __str__(self):
         return '{0}: Run Time{1} | PASSED={2} | WARNINGS={3} | ERRORS={4} | '\
-    'app name={5} | Pthread={6} | Dataset={7} GB'.format(self.test_application,
-            self.result_run_time, self.result_passed, self.result_warnings,
-            self.result_errors, self.app_name, self.pthread_num,
-            self.dataset_size)
+    'app name={5} | Pthread={6} | Dataset={7} GB'.format(
+            self.test_application, self.result_run_time, self.result_passed,
+            self.result_warnings, self.result_errors, self.app_name,
+            self.pthread_num, self.dataset_size)
 
     class Meta:
         abstract = False
@@ -233,7 +235,7 @@ class SiriusSuitMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SparkInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Spark',
             editable=False)
@@ -268,7 +270,7 @@ class SparkMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SpecCPUInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='SPEC CPU',
             editable=False)
@@ -314,7 +316,7 @@ class SpecCPUMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SpecjbbInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Spec jbb',
             editable=False)
@@ -323,7 +325,8 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_bops = models.DecimalField('Result - bops', max_digits=12, decimal_places=4)
+    result_bops = models.DecimalField('Result - bops', max_digits=12,
+            decimal_places=4)
     #TODO: add for upload file
     jbb_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
@@ -354,7 +357,7 @@ class SpecjbbMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SpecjvmInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Spec jvm',
             editable=False)
@@ -363,7 +366,8 @@ class SpecjvmInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_bops = models.DecimalField('Result - bops', max_digits=12, decimal_places=4)
+    result_bops = models.DecimalField('Result - bops', max_digits=12,
+            decimal_places=4)
     app_name = models.CharField('app name', max_length=32)
     jvm_parameter = models.CharField('JVM Parameter', max_length=16)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
@@ -386,7 +390,7 @@ class SpecjvmMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class SplashInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='Splash',
             editable=False)
@@ -395,7 +399,8 @@ class SplashInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time', max_digits=12, decimal_places=4)
+    result_time = models.DecimalField('Result - Time', max_digits=12,
+            decimal_places=4)
     app_name = models.CharField('app name', max_length=32)
     problem_size = models.CharField('Problem Size', max_length=16)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
@@ -418,7 +423,7 @@ class SplashMachine(HardwareEnvironment, SoftwareEnvironment):
         abstract = False
 
 
-################################################################################
+##############################################################################
 class TpccInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='TPC-C',
             editable=False)
@@ -431,7 +436,8 @@ class TpccInformation(ProjectInformation, Bottleneck):
             decimal_places=4)
     warehouses = models.PositiveIntegerField('WAREHOUSES')
     terminals = models.PositiveSmallIntegerField('TERMINALS')
-    run_time = models.DecimalField('RUN_TIME', max_digits=12, decimal_places=4)
+    run_time = models.DecimalField('RUN_TIME', max_digits=12,
+            decimal_places=4)
     network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
             '(Mbps)', default=0)
 
@@ -453,7 +459,7 @@ class TpccMachine(HardwareEnvironment, SoftwareEnvironment):
     class Meta:
         abstract = False
 
-################################################################################
+##############################################################################
 class WebServingInformation(ProjectInformation, Bottleneck):
     test_application = models.CharField(max_length=32, default='WebServing',
             editable=False)
@@ -535,7 +541,8 @@ class WebServingHardwareEnvironment(models.Model):
             )
     cpu_type = models.CharField('CPU Type', max_length=16)
     architecture_type = models.CharField('Architecture',
-            choices=Architecture_Type_Choices, max_length=32, default='powerpc'
+            choices=Architecture_Type_Choices, max_length=32,
+            default='powerpc'
             )
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
