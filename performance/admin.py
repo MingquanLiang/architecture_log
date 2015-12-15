@@ -12,29 +12,6 @@ from .models import SplashInformation, SplashMachine
 from .models import TpccInformation, TpccMachine
 from .models import WebServingInformation, WebServingMachine
 
-"""
-class BaseMachineInline(admin.StackedInline):
-    fieldsets = (
-            ('Machine Information', {
-                'fields': (('machine_name', 'machine_side'),)
-                }
-                ),
-            ('CPU Information', {
-                'fields': (('architecture_type', 'byte_order'),)
-                }
-                ),
-            ('Cache & Memory', {
-                'fields': (('l1_instruction','l1_data','l2'),
-                    ('l3', 'l4', 'memory'),)
-                }
-                ),
-            ('Operation System', {
-                'fields': (('os_type', 'kernel_version'),
-                    'dependence_information')
-                }
-                ),
-            )
-"""
 
 class BaseMachineInline(admin.StackedInline):
     fieldsets = [
@@ -58,10 +35,12 @@ class BaseMachineInline(admin.StackedInline):
                 ),
             ]
 
+
 #######################################################################
 class DataCachingMachineInline(BaseMachineInline):
     model = DataCachingMachine
     extra = 1
+
 
 class DataCachingAdmin(admin.ModelAdmin):
     inlines = [DataCachingMachineInline]
@@ -149,7 +128,6 @@ class ParsecAdmin(admin.ModelAdmin):
 
 #######################################################################
 class SiriusSuitMachineInline(BaseMachineInline):
-    #TODO: fieldsets will be changed here to add cur_freq
     new_cpu_information = ('CPU Information', {'fields':
         (('architecture_type', 'byte_order', 'cur_freq'),)
         })
@@ -162,6 +140,7 @@ class SiriusSuitMachineInline(BaseMachineInline):
 
     model = SiriusSuitMachine
     max_num = 1
+
 
 class SiriusSuitAdmin(admin.ModelAdmin):
     inlines = [SiriusSuitMachineInline]
@@ -193,6 +172,7 @@ class SparkMachineIncline(BaseMachineInline):
     model = SparkMachine
     max_num = 1
 
+
 class SparkAdmin(admin.ModelAdmin):
     inlines = [SparkMachineIncline]
     fieldsets = (
@@ -216,11 +196,9 @@ class SparkAdmin(admin.ModelAdmin):
                 ),
             )
 
+
 #######################################################################
 class SpecCPUMachineInline(BaseMachineInline):
-    #TODO: I will add these new fields into SpecCPUMachine: threads_per_core,
-    #cores_per_socket, socket_number, numa_nodes, cpu_number, cpu_frequency
-
     new_cpu_information = ('CPU Information', {'fields':
         (('architecture_type', 'byte_order', 'cpu_number', 'cpu_frequency'),
          ('threads_per_core', 'cores_per_socket', 'socket_number',
@@ -235,6 +213,7 @@ class SpecCPUMachineInline(BaseMachineInline):
 
     model = SpecCPUMachine
     max_num = 1
+
 
 class SpecCPUAdmin(admin.ModelAdmin):
     inlines = [SpecCPUMachineInline]
@@ -295,6 +274,7 @@ class SpecjbbAdmin(admin.ModelAdmin):
 class SpecjvmMachineInline(BaseMachineInline):
     model = SpecjvmMachine
     max_num = 1
+
 
 class SpecjvmAdmin(admin.ModelAdmin):
     inlines = [SpecjvmMachineInline]
@@ -423,7 +403,7 @@ class WebServingAdmin(admin.ModelAdmin):
                 ),
             )
 
-#-----------------------------------------------------------------------#
+# register the models into admin
 admin.site.register(DataCachingInformation, DataCachingAdmin)
 admin.site.register(LmbenchInformation, LmbenchAdmin)
 admin.site.register(ParsecInformation, ParsecAdmin)
@@ -435,5 +415,4 @@ admin.site.register(SpecjvmInformation, SpecjvmAdmin)
 admin.site.register(SplashInformation, SplashAdmin)
 admin.site.register(TpccInformation, TpccAdmin)
 admin.site.register(WebServingInformation, WebServingAdmin)
-
 
