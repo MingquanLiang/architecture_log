@@ -16,5 +16,7 @@ def download_filename(request, filename):
                     break
     response = StreamingHttpResponse(read_file(filename))
     response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(filename)
+    base_filename = os.path.basename(filename)
+    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(
+            base_filename)
     return response
