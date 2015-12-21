@@ -280,8 +280,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
     inlines = [SpecjvmMachineInline]
     fieldsets = (
             (None, {
-                'fields': (('result_bops',), ('version', 'record_result_time'),
-                    ('reference_link',))
+                'fields': (('result_bops', 'jvm_attachment'),
+                    ('version', 'record_result_time'), ('reference_link',))
                 }
                 ),
             ('Project Information', {
@@ -289,7 +289,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name', 'jvm_parameter', 'processor_number'),)
+                'fields': (('app_name', 'processor_number'),
+                    ('jvm_parameter', 'specjvm_parameter'))
                 }
                 ),
             ('Bottleneck (click for "yes")', {

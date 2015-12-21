@@ -67,7 +67,7 @@ class SoftwareEnvironment(models.Model):
     os_type = models.CharField('Operation System', max_length=32)
     kernel_version = models.CharField('Kernel Version', max_length=32)
     dependence_information = models.TextField('Dependency Instruction',
-            max_length=200, blank=True)
+            max_length=1024, blank=True)
 
     class Meta:
         abstract = True
@@ -81,6 +81,10 @@ class Bottleneck(models.Model):
     class Meta:
         abstract = True
 
+
+APPLICATIONS = ('Data Caching', 'Lmbench', 'Parsec', 'Sirius', 'Spark',
+        'SPEC CPU', 'SPEC jbb', 'SPEC jvm', 'Splash', 'TPCC', 'WebServing'
+        )
 
 #####################       Application From Here          ###################
 ##############################################################################
@@ -332,7 +336,7 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
             blank=True)
 
     app_name = models.CharField('app name', max_length=32)
-    jvm_parameter = models.CharField('JVM Parameter', max_length=16)
+    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
     jvm_instances = models.PositiveSmallIntegerField('JVM Instances')
     warehouses = models.PositiveIntegerField('WAREHOUSES')
@@ -368,14 +372,17 @@ class SpecjvmInformation(ProjectInformation, Bottleneck):
 
     result_bops = models.DecimalField('Result - bops', max_digits=12,
             decimal_places=4)
+    jvm_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
+            blank=True)
     app_name = models.CharField('app name', max_length=32)
-    jvm_parameter = models.CharField('JVM Parameter', max_length=16)
+    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
+    specjvm_parameter = models.CharField('Spec JVM Parameter', max_length=512)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
 
     def __str__(self):
         return '{0}: bops={1} | app name={2} | JVM Parameter={3} | '\
-    'processor_number={4}'.format(self.test_application, self.result_bops,
-            self.app_name, self.jvm_parameter, self.processor_number)
+    'Spec JVM Parameter={4} | processor_number={5}'.format(self.test_application, self.result_bops,
+            self.app_name, self.jvm_parameter, self.specjvm_parameter, self.processor_number)
 
     class Meta:
         abstract = False
