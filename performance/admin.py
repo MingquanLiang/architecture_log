@@ -187,7 +187,8 @@ class SparkTerasortAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('data_size','parition_size','processor_number'),)
+                'fields': (('data_size','parition_size','processor_number',
+                    'workers'),)
                 }
                 ),
             ('Bottleneck (click for "yes")', {
