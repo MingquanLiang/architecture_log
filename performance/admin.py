@@ -85,7 +85,8 @@ class LmbenchAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','problem_size', 'processor_number'),)
+                'fields': (('app_name','problem_size', 'thread_number'),
+                    ('node', 'phycpu', 'stride_size'))
                 }
                 ),
             ('Bottleneck (click for "yes")', {

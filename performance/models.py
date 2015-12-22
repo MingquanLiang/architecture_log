@@ -140,7 +140,10 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
             decimal_places=4)
     app_name = models.CharField('app name', max_length=32, default='bw_mem')
     problem_size = models.CharField('Problem Size', max_length=16)
-    processor_number = models.PositiveSmallIntegerField('Processor Number')
+    node = models.CharField('Node', max_length=256)
+    phycpu = models.CharField('Physical CPU', max_length=256)
+    thread_number = models.PositiveSmallIntegerField('Thread Number')
+    stride_size = models.PositiveIntegerField('Stride Size (Byte)')
 
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Problem Size={3} | Processor'\
@@ -336,10 +339,12 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
             blank=True)
 
     app_name = models.CharField('app name', max_length=32)
-    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
-    jvm_instances = models.PositiveSmallIntegerField('JVM Instances')
-    warehouses = models.PositiveIntegerField('WAREHOUSES')
+    jvm_parameter = models.CharField('JVM Parameter', max_length=512,
+            blank=True)
+    jvm_instances = models.PositiveSmallIntegerField('JVM Instances',
+            blank=True)
+    warehouses = models.PositiveIntegerField('WAREHOUSES', blank=True)
 
     def __str__(self):
         return '{0}: app name={1} | JVM Parameter={2} | Processor(s)={3} | '\
