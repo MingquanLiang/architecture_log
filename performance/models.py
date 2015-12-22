@@ -255,6 +255,7 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
             decimal_places=4)
     parition_size = models.PositiveSmallIntegerField('Partition Size')
     processor_number = models.PositiveSmallIntegerField('Processor Number')
+    workers = models.PositiveIntegerField('Workers')
 
     def __str__(self):
         return '{0}: Time(s)={1} | Data Size={2} | Partition Size={3} | '\
@@ -336,11 +337,9 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
 
     app_name = models.CharField('app name', max_length=256)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
-    jvm_parameter = models.CharField('JVM Parameter', max_length=512,
-            blank=True)
-    jvm_instances = models.PositiveSmallIntegerField('JVM Instances',
-            blank=True)
-    warehouses = models.PositiveIntegerField('WAREHOUSES', blank=True)
+    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
+    jvm_instances = models.PositiveSmallIntegerField('JVM Instances')
+    warehouses = models.PositiveIntegerField('WAREHOUSES')
 
     def __str__(self):
         return '{0}: app name={1} | JVM Parameter={2} | Processor(s)={3} | '\
