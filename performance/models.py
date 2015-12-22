@@ -147,7 +147,7 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Problem Size={3} | Processor'\
     ' Number={4}'.format(self.test_application, self.result_time, 
-            self.app_name, self.problem_size, self.processor_number)
+            self.app_name, self.problem_size, self.thread_number)
 
     class Meta:
         abstract = False
