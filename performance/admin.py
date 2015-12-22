@@ -4,7 +4,7 @@ from .models import DataCachingInformation, DataCachingMachine
 from .models import LmbenchInformation, LmbenchMachine
 from .models import ParsecInformation, ParsecMachine
 from .models import SiriusSuitInformation, SiriusSuitMachine
-from .models import SparkInformation, SparkMachine
+from .models import SparkTerasortInformation, SparkTerasortMachine
 from .models import SpecCPUInformation, SpecCPUMachine
 from .models import SpecjbbInformation, SpecjbbMachine
 from .models import SpecjvmInformation, SpecjvmMachine
@@ -85,7 +85,8 @@ class LmbenchAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','problem_size', 'processor_number'),)
+                'fields': (('app_name','problem_size', 'thread_number'),
+                    ('node', 'phycpu', 'stride_size'))
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -168,13 +169,13 @@ class SiriusSuitAdmin(admin.ModelAdmin):
 
 
 #######################################################################
-class SparkMachineIncline(BaseMachineInline):
-    model = SparkMachine
+class SparkTerasortMachineIncline(BaseMachineInline):
+    model = SparkTerasortMachine
     max_num = 1
 
 
-class SparkAdmin(admin.ModelAdmin):
-    inlines = [SparkMachineIncline]
+class SparkTerasortAdmin(admin.ModelAdmin):
+    inlines = [SparkTerasortMachineIncline]
     fieldsets = (
             (None, {
                 'fields': (('result_times',), ('version',
@@ -200,9 +201,9 @@ class SparkAdmin(admin.ModelAdmin):
 #######################################################################
 class SpecCPUMachineInline(BaseMachineInline):
     new_cpu_information = ('CPU Information', {'fields':
-        (('architecture_type', 'byte_order', 'cpu_number', 'cpu_frequency'),
-         ('threads_per_core', 'cores_per_socket', 'socket_number',
-             'numa_nodes'), )
+        (('architecture_type', 'numa_nodes', 'cpu_number', 'cpu_frequency'),
+         ('byte_order', 'threads_per_core', 'cores_per_socket',
+             'socket_number'))
          })
     fieldsets = []
     for i in BaseMachineInline.fieldsets:
@@ -280,8 +281,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
     inlines = [SpecjvmMachineInline]
     fieldsets = (
             (None, {
-                'fields': (('result_bops',), ('version', 'record_result_time'),
-                    ('reference_link',))
+                'fields': (('result_bops', 'jvm_attachment'),
+                    ('version', 'record_result_time'), ('reference_link',))
                 }
                 ),
             ('Project Information', {
@@ -289,7 +290,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name', 'jvm_parameter', 'processor_number'),)
+                'fields': (('app_name', 'processor_number'),
+                    ('jvm_parameter', 'specjvm_parameter'))
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -408,7 +410,7 @@ admin.site.register(DataCachingInformation, DataCachingAdmin)
 admin.site.register(LmbenchInformation, LmbenchAdmin)
 admin.site.register(ParsecInformation, ParsecAdmin)
 admin.site.register(SiriusSuitInformation, SiriusSuitAdmin)
-admin.site.register(SparkInformation, SparkAdmin)
+admin.site.register(SparkTerasortInformation, SparkTerasortAdmin)
 admin.site.register(SpecCPUInformation, SpecCPUAdmin)
 admin.site.register(SpecjbbInformation, SpecjbbAdmin)
 admin.site.register(SpecjvmInformation, SpecjvmAdmin)
