@@ -9,10 +9,26 @@ class ProjectInformation(models.Model):
     reference_link = models.URLField('Reference Link (Confluence)',
             default='http://10.100.8.185:8090')
 
+    # TODO: every test only concerntrate certain cpu type, so can not 
+    # add it into "Hardwareenvironment"
+    CPU_Type_Choices = (
+            ('CPU 1.0', 'CPU 1.0'),
+            ('CPU 1.1', 'CPU 1.1'),
+            )
+    cpu_type = models.CharField('CPU Type',
+            choices=CPU_Type_Choices, max_length=32, default='CPU 1.0'
+            )
+
     class Meta:
         abstract = True
 
 class HardwareEnvironment(models.Model):
+    """
+    Store Base Hardware Information.
+    """
+
+    # TODO: When modify "Hardwareenvironment", Please Remember 
+    # Changing "Webservinghardwareenvironment" At the same time
     Machine_Name_Choices = (
             #(None, 'Choose Machine Name'),
             ('Habonaro', 'Habonaro'),
@@ -45,7 +61,6 @@ class HardwareEnvironment(models.Model):
     machine_name = models.CharField('Machine Name',
             choices=Machine_Name_Choices, max_length=32, default='Habonaro'
             )
-    cpu_type = models.CharField('CPU Type', max_length=16)
     architecture_type = models.CharField('Architecture',
             choices=Architecture_Type_Choices, max_length=32,
             default='powerpc',
@@ -53,6 +68,8 @@ class HardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
+    cpu_frequency = models.DecimalField('CPU Clock Frequency (GHZ)',
+            max_digits=8, decimal_places=4)
     l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
     l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
@@ -64,8 +81,21 @@ class HardwareEnvironment(models.Model):
         abstract = True
 
 class SoftwareEnvironment(models.Model):
-    os_type = models.CharField('Operation System', max_length=64)
-    kernel_version = models.CharField('Kernel Version', max_length=64)
+    OS_Type_Choices = (
+            ('Ubuntu 14.04.2 LTS', 'Ubuntu 14.04.2 LTS'),
+            ('CentOS release 6.6 (Final)', 'CentOS release 6.6 (Final)'),
+            ('CentOS Linux release 7.0.1406 (Core)',
+            'CentOS Linux release 7.0.1406 (Core)'),
+            )
+    kernel_version = (
+            ('3.16.0', '3.16.0'),
+            ('2.6.32', '2.6.32'),
+            ('3.10.0', '3.10.0'),
+            )
+    os_type = models.CharField('Operation System', choices=OS_Type_Choices,
+            max_length=64, default='Ubuntu 14.04.2 LTS')
+    kernel_version = models.CharField('Kernel Version',
+            choices=kernel_version, max_length=64, default='3.16.0')
     dependence_information = models.TextField('Dependency Instruction',
             max_length=1024, blank=True)
 
@@ -139,15 +169,17 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
             decimal_places=4)
     app_name = models.CharField('app name', max_length=256, default='bw_mem')
     problem_size = models.CharField('Problem Size', max_length=256)
+    thread_number = models.PositiveSmallIntegerField('Thread Number')
     node = models.CharField('Node', max_length=256)
     phycpu = models.CharField('Physical CPU', max_length=256)
-    thread_number = models.PositiveSmallIntegerField('Thread Number')
     stride_size = models.PositiveIntegerField('Stride Size (Byte)')
 
     def __str__(self):
-        return '{0}: Time={1} | app name={2} | Problem Size={3} | Processor'\
-    ' Number={4}'.format(self.test_application, self.result_time, 
-            self.app_name, self.problem_size, self.thread_number)
+        return '{0}: Time={1} | app name={2} | Problem Size={3} | Thread'\
+    ' Number={4} | Node={5} | Physical CPU={6} | Stride Size={7}'.format(
+            self.test_application, self.result_time, self.app_name, 
+            self.problem_size, self.thread_number, self.node, self.phycpu,
+            self.stride_size)
 
     class Meta:
         abstract = False
@@ -172,7 +204,7 @@ class ParsecInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time', max_digits=12,
+    result_time = models.DecimalField('Result - Time(s)', max_digits=12,
             decimal_places=4)
     app_name = models.CharField('app name', max_length=256)
     input_set = models.CharField('Input Set', max_length=256)
@@ -206,7 +238,7 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_run_time = models.DecimalField('Result - RUN_TIME', max_digits=12,
+    result_run_time = models.DecimalField('Result - RUN_TIME(ms)', max_digits=12,
             decimal_places=4)
     result_passed = models.BooleanField('Result - PASSED')
     result_warnings = models.BooleanField('Result - WARNINGS')
@@ -230,8 +262,6 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
 class SiriusSuitMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
-    cur_freq = models.DecimalField('CUR_FREQ (GHZ)', max_digits=8,
-            decimal_places=4)
     app_information = models.ForeignKey(SiriusSuitInformation,
             verbose_name='Sirius-suit Information')
 
@@ -248,9 +278,8 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_times = models.DecimalField('Result - Time(s)', max_digits=12,
+    result_time = models.DecimalField('Result - Time(s)', max_digits=12,
             decimal_places=4)
-    #TODO: what base unit ??? MB or GB?
     data_size = models.DecimalField('Data Size (GB)', max_digits=12,
             decimal_places=4)
     parition_size = models.PositiveSmallIntegerField('Partition Size')
@@ -259,8 +288,9 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
 
     def __str__(self):
         return '{0}: Time(s)={1} | Data Size={2} | Partition Size={3} | '\
-    'Processor Number={4}'.format(self.test_application, self.result_times,
-            self.data_size, self.parition_size, self.processor_number)
+    'Processor Number={4} | Works={5}'.format(self.test_application,
+            self.result_time, self.data_size, self.parition_size,
+            self.processor_number, self.workers)
 
     class Meta:
         abstract = False
@@ -288,8 +318,6 @@ class SpecCPUInformation(ProjectInformation, Bottleneck):
     result_fp_rate_ratio = models.DecimalField("Result - FP Rate Ratio's",
             max_digits=12, decimal_places=4)
     benchmarks = models.CharField("Benchmarks", max_length=256)
-    #processor_number = models.PositiveSmallIntegerField("Processor Number")
-    #TODO: change processor_number into copies and add smt_number
     copies = models.PositiveSmallIntegerField('Copies')
     smt_number = models.PositiveSmallIntegerField('SMT')
 
@@ -305,14 +333,11 @@ class SpecCPUInformation(ProjectInformation, Bottleneck):
 class SpecCPUMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
-    #TODO: add some new fields
     threads_per_core = models.PositiveSmallIntegerField('Thread(s) Per Core')
     cores_per_socket = models.PositiveSmallIntegerField('Core(s) Per Socket')
     socket_number = models.PositiveSmallIntegerField('Socket(s)')
     numa_nodes = models.PositiveSmallIntegerField('NUMA Node(s)')
     cpu_number = models.PositiveSmallIntegerField('CPU(s)')
-    cpu_frequency = models.DecimalField('CPU Clock Frequency (GHZ)',
-            max_digits=8, decimal_places=4)
     app_information = models.ForeignKey(SpecCPUInformation,
             verbose_name='SPEC CPU Information')
 
@@ -331,10 +356,9 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
 
     result_bops = models.DecimalField('Result - bops', max_digits=12,
             decimal_places=4)
-    #TODO: add for upload file
+    # the jbb_attachment is a part of result in Specjbb
     jbb_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
-
     app_name = models.CharField('app name', max_length=256)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
     jvm_parameter = models.CharField('JVM Parameter', max_length=512)
@@ -342,9 +366,10 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
     warehouses = models.PositiveIntegerField('WAREHOUSES')
 
     def __str__(self):
-        return '{0}: app name={1} | JVM Parameter={2} | Processor(s)={3} | '\
-    'JVM Instances={4} | WAREHOUSES={5}'.format(self.test_application,
-            self.app_name, self.jvm_parameter, self.processor_number,
+        return '{0}: bops={1} | app name={2} | JVM Parameter={3} | '\
+    'Processor(s)={4} | JVM Instances={5} | WAREHOUSES={6}'.format(
+            self.test_application, self.result_bops, self.app_name, 
+            self.jvm_parameter, self.processor_number,
             self.jvm_instances, self.warehouses)
 
     class Meta:
@@ -406,7 +431,7 @@ class SplashInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time', max_digits=12,
+    result_time = models.DecimalField('Result - Time(us)', max_digits=12,
             decimal_places=4)
     app_name = models.CharField('app name', max_length=256)
     problem_size = models.CharField('Problem Size', max_length=256)
@@ -486,7 +511,6 @@ class WebServingInformation(ProjectInformation, Bottleneck):
     pm_max_connections = models.PositiveSmallIntegerField('PM Max Connections')
     sql_max_connections = models.PositiveSmallIntegerField(
             'SQL Max Connections')
-    #TODO: add some new fields
     worker_processes = models.PositiveSmallIntegerField('Worker Processes')
     worker_connection = models.PositiveSmallIntegerField('Worker Connection')
     network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
@@ -495,12 +519,13 @@ class WebServingInformation(ProjectInformation, Bottleneck):
     def __str__(self):
         return '{0}: OPS={1} | PASSED={2} | WARNINGS={3} | ERRORS={4} | Warm'\
     ' Up={5} | CON Users={6} | PM Staic={7} | PM Max Connections={8} | '\
-    'Worker Processes={9} | Worker Connection={10} | Network '\
-    'Bandwidth={11}'.format(self.test_application, self.result_ops,
+    'SQL Max Connections={9} | Worker Processes={10} | Worker Connection={11}'\
+    ' | Network Bandwidth={12}'.format(self.test_application, self.result_ops,
             self.result_passed, self.result_warnings, self.result_errors,
             self.warm_up, self.con_users, self.pm_static,
-            self.pm_max_connections, self.worker_processes,
-            self.worker_connection, self.network_bandwidth)
+            self.pm_max_connections, self.sql_max_connections,
+            self.worker_processes, self.worker_connection,
+            self.network_bandwidth)
 
     class Meta:
         abstract = False
@@ -533,8 +558,6 @@ class WebServingHardwareEnvironment(models.Model):
             ('client_side', 'As a Client'),
             )
 
-
-
     #TODO: django1.8 Can not override the field
     """
     There is a link about "Field name “hiding” is not permitted"
@@ -546,7 +569,6 @@ class WebServingHardwareEnvironment(models.Model):
     machine_name = models.CharField('Machine Name',
             choices=Machine_Name_Choices, max_length=32, default='Habonaro'
             )
-    cpu_type = models.CharField('CPU Type', max_length=16)
     architecture_type = models.CharField('Architecture',
             choices=Architecture_Type_Choices, max_length=32,
             default='powerpc'
@@ -554,6 +576,8 @@ class WebServingHardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
+    cpu_frequency = models.DecimalField('CPU Clock Frequency (GHZ)',
+            max_digits=8, decimal_places=4)
     l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
     l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
