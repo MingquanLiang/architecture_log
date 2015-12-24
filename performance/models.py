@@ -82,18 +82,30 @@ class HardwareEnvironment(models.Model):
 
 class SoftwareEnvironment(models.Model):
     OS_Type_Choices = (
-            ('Ubuntu 14.04.2 LTS', 'Ubuntu 14.04.2 LTS'),
-            ('CentOS release 6.6 (Final)', 'CentOS release 6.6 (Final)'),
-            ('CentOS Linux release 7.0.1406 (Core)',
-            'CentOS Linux release 7.0.1406 (Core)'),
+            ('Ubuntu 14.04.1', 'Ubuntu 14.04.1'),
+            ('Ubuntu 14.04.2', 'Ubuntu 14.04.2'),
+            ('Ubuntu 14.04.3', 'Ubuntu 14.04.3'),
+            ('Ubuntu 14.04.10', 'Ubuntu 14.04.10'),
+            ('RHEL 7.0', 'RHEL 7.0'),
+            ('CentOS 6.6', 'CentOS 6.6'),
+            ('CentOS 6.7', 'CentOS 6.7'),
+            ('CentOS 7.0', 'CentOS 7.0'),
+            ('Fedora 22', 'Fedora 22'),
+            ('PowerKVM 2.1.1', 'PowerKVM 2.1.1'),
             )
     kernel_version = (
-            ('3.16.0', '3.16.0'),
             ('2.6.32', '2.6.32'),
             ('3.10.0', '3.10.0'),
+            ('3.10.53', '3.10.53'),
+            ('3.10.89', '3.10.89'),
+            ('3.13.0', '3.13.0'),
+            ('3.16.0', '3.16.0'),
+            ('3.19.0', '3.19.0'),
+            ('4.0.4', '4.0.4'),
+            ('4.1.0', '4.1.0'),
             )
     os_type = models.CharField('Operation System', choices=OS_Type_Choices,
-            max_length=64, default='Ubuntu 14.04.2 LTS')
+            max_length=64, default='Ubuntu 14.04.2')
     kernel_version = models.CharField('Kernel Version',
             choices=kernel_version, max_length=64, default='3.16.0')
     dependence_information = models.TextField('Dependency Instruction',
