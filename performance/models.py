@@ -164,6 +164,10 @@ class DataCachingMachine(HardwareEnvironment, SoftwareEnvironment):
     app_information = models.ForeignKey(DataCachingInformation,
             verbose_name='DataCaching Information')
 
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -203,6 +207,10 @@ class LmbenchMachine(HardwareEnvironment, SoftwareEnvironment):
     app_information = models.ForeignKey(LmbenchInformation,
             verbose_name='Lmbench Information')
 
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -236,6 +244,10 @@ class ParsecMachine(HardwareEnvironment, SoftwareEnvironment):
             auto_now=True)
     app_information = models.ForeignKey(ParsecInformation,
             verbose_name='Parsec Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
 
     class Meta:
         abstract = False
@@ -277,6 +289,10 @@ class SiriusSuitMachine(HardwareEnvironment, SoftwareEnvironment):
     app_information = models.ForeignKey(SiriusSuitInformation,
             verbose_name='Sirius-suit Information')
 
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -312,6 +328,11 @@ class SparkTerasortMachine(HardwareEnvironment, SoftwareEnvironment):
             auto_now=True)
     app_information = models.ForeignKey(SparkTerasortInformation,
             verbose_name='SparkTerasort Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -352,6 +373,10 @@ class SpecCPUMachine(HardwareEnvironment, SoftwareEnvironment):
     cpu_number = models.PositiveSmallIntegerField('CPU(s)')
     app_information = models.ForeignKey(SpecCPUInformation,
             verbose_name='SPEC CPU Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
 
     class Meta:
         abstract = False
@@ -394,6 +419,10 @@ class SpecjbbMachine(HardwareEnvironment, SoftwareEnvironment):
     app_information = models.ForeignKey(SpecjbbInformation,
             verbose_name='Specjbb Information')
 
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -430,6 +459,10 @@ class SpecjvmMachine(HardwareEnvironment, SoftwareEnvironment):
     app_information = models.ForeignKey(SpecjvmInformation,
             verbose_name='Specjvm Information')
 
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
+
     class Meta:
         abstract = False
 
@@ -462,6 +495,10 @@ class SplashMachine(HardwareEnvironment, SoftwareEnvironment):
             auto_now=True)
     app_information = models.ForeignKey(SplashInformation,
             verbose_name='Splash Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
 
     class Meta:
         abstract = False
@@ -499,6 +536,10 @@ class TpccMachine(HardwareEnvironment, SoftwareEnvironment):
             auto_now=True)
     app_information = models.ForeignKey(TpccInformation,
             verbose_name='TPC-C Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
 
     class Meta:
         abstract = False
@@ -607,6 +648,10 @@ class WebServingMachine(WebServingHardwareEnvironment, SoftwareEnvironment):
             auto_now=True)
     app_information = models.ForeignKey(WebServingInformation,
             verbose_name='WebServing Information')
+
+    def __str__(self):
+        return "id={0} | app_information_id={1}".format(
+            self.id, self.app_information_id)
 
     class Meta:
         abstract = False
