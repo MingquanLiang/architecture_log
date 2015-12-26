@@ -340,7 +340,6 @@ class SearchResultView(generic.TemplateView):
         i_module_needed_queryset = post_app_i_module.objects.filter(
                 **i_filter_kwargs)
         i_id_list = [ record.id for record in i_module_needed_queryset ]
-
         # get needed record from XXXMachine module
         m_filter_kwargs = {}
         m_filter_kwargs['architecture_type__exact'] = post_architecture
@@ -348,56 +347,8 @@ class SearchResultView(generic.TemplateView):
                 **m_filter_kwargs)
         m_id_list = [ record.app_information_id for record in
                 m_module_needed_queryset ]
-
         # merge same value because ForeignKey in .models
         id_list = self.get_same_element_in_list(i_id_list, m_id_list)
-
-        """
-        # ----- The commemnted code is replaced by filter(**kwargs) -----
-        # the field:value map stored into it.
-        post_app_field_value_map_range = {}
-        post_app_field_value_map_choice = {}
-        if post_app_range_field_list is not None:
-            for i in post_app_range_field_list:
-                post_app_field_value_map_range[i] = all_post_data.get(i)
-        if post_app_choice_field_list is not None:
-            for i in post_app_choice_field_list:
-                post_app_field_value_map_choice[i] = all_post_data.get(i)
-
-        # ---------------- start to filter needed record ---------------- #
-        # XXXInformation module
-        # FIXME: I should filter the record via timestamp at this step
-        i_module_info = [ i for i in post_app_i_module.objects.all() ]
-
-        # handle the field value is a range value
-        i_field_value_map_range = copy.deepcopy(
-                post_app_field_value_map_range)
-        i_id_list_range = self.filter_needed_id(i_module_info,
-                i_field_value_map_range, "range")
-
-        # handle the field value is an exact value
-        i_field_value_map_choice = copy.deepcopy(
-                post_app_field_value_map_choice)
-        i_field_value_map_choice['project_name'] = post_project_name
-        i_field_value_map_choice['cpu_type'] = post_cpu_type
-        i_id_list_choice = self.filter_needed_id(i_module_info,
-                i_field_value_map_choice, "choice")
-
-        i_id_list = self.get_same_element_in_list(i_id_list_choice,
-                i_id_list_range)
-
-
-        # XXXMachine module
-        m_module_info = [ i for i in post_app_m_module.objects.all()]
-        m_field_value_map = {}
-        m_field_value_map['architecture'] = post_architecture
-        m_id_list = self.filter_needed_id(m_module_info, m_field_value_map,
-                "choice", filter_field='app_information_id')
-
-        # This id_list is post needed and also primary key of XXXINFORMATION
-        id_list = self.get_same_element_in_list(i_id_list, m_id_list)
-        # ----- The commemnted code is replaced by filter(**kwargs) -----
-        """
 
         i_field_name_list = self.get_all_field_name(post_app_i_module,
                 exclude_list=('test_application', 'record_result_time', ))
