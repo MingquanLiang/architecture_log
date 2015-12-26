@@ -39,7 +39,8 @@ class BaseMachineInline(admin.StackedInline):
 #######################################################################
 class DataCachingMachineInline(BaseMachineInline):
     model = DataCachingMachine
-    extra = 1
+    #extra = 1
+    extra = 0
 
 
 class DataCachingAdmin(admin.ModelAdmin):
