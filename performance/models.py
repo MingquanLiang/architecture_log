@@ -68,8 +68,7 @@ class HardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
-    cpu_frequency = models.DecimalField('CPU Clock Frequency (GHZ)',
-            max_digits=8, decimal_places=4)
+    cpu_frequency = models.FloatField('CPU Clock Frequency (GHZ)')
     l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
     l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
@@ -138,8 +137,7 @@ class DataCachingInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_max_rps = models.DecimalField('Result - Max RPS', max_digits=12,
-            decimal_places=4)
+    result_max_rps = models.FloatField('Result - Max RPS')
     data_scale = models.PositiveSmallIntegerField('Data Scale')
     number_works = models.PositiveSmallIntegerField('Work Number')
     number_connections = models.PositiveSmallIntegerField('Connection Number')
@@ -181,8 +179,7 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time', max_digits=12,
-            decimal_places=4)
+    result_time = models.FloatField('Result - Time')
     app_name = models.CharField('app name', max_length=256, default='bw_mem')
     problem_size = models.CharField('Problem Size', max_length=256)
     thread_number = models.PositiveSmallIntegerField('Thread Number')
@@ -224,8 +221,7 @@ class ParsecInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time(s)', max_digits=12,
-            decimal_places=4)
+    result_time = models.FloatField('Result - Time(s)')
     app_name = models.CharField('app name', max_length=256)
     input_set = models.CharField('Input Set', max_length=256)
     thread_number = models.PositiveSmallIntegerField('Thread Number')
@@ -262,15 +258,13 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_run_time = models.DecimalField('Result - RUN_TIME(ms)', max_digits=12,
-            decimal_places=4)
+    result_run_time = models.FloatField('Result - RUN_TIME(ms)')
     result_passed = models.BooleanField('Result - PASSED')
     result_warnings = models.BooleanField('Result - WARNINGS')
     result_errors = models.BooleanField('Result - ERRORS')
     app_name = models.CharField('app name', max_length=256)
     pthread_num = models.PositiveSmallIntegerField('Pthread Number')
-    dataset_size = models.DecimalField('Dataset Size (GB)', max_digits=12,
-            decimal_places=4)
+    dataset_size = models.FloatField('Dataset Size (GB)')
 
     def __str__(self):
         return '{0}: Run Time{1} | PASSED={2} | WARNINGS={3} | ERRORS={4} | '\
@@ -306,10 +300,8 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time(s)', max_digits=12,
-            decimal_places=4)
-    data_size = models.DecimalField('Data Size (GB)', max_digits=12,
-            decimal_places=4)
+    result_time = models.FloatField('Result - Time(s)')
+    data_size = models.FloatField('Data Size (GB)')
     parition_size = models.PositiveSmallIntegerField('Partition Size')
     processor_number = models.PositiveSmallIntegerField('Processor Number')
     workers = models.PositiveIntegerField('Workers')
@@ -346,10 +338,8 @@ class SpecCPUInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_int_rate_ratio = models.DecimalField("Result - INT Rate Ratio's",
-            max_digits=12, decimal_places=4)
-    result_fp_rate_ratio = models.DecimalField("Result - FP Rate Ratio's",
-            max_digits=12, decimal_places=4)
+    result_int_rate_ratio = models.FloatField("Result - INT Rate Ratio's")
+    result_fp_rate_ratio = models.FloatField("Result - FP Rate Ratio's")
     benchmarks = models.CharField("Benchmarks", max_length=256)
     copies = models.PositiveSmallIntegerField('Copies')
     smt_number = models.PositiveSmallIntegerField('SMT')
@@ -391,8 +381,7 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_bops = models.DecimalField('Result - bops', max_digits=12,
-            decimal_places=4)
+    result_bops = models.FloatField('Result - bops')
     # the jbb_attachment is a part of result in Specjbb
     jbb_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
@@ -436,8 +425,7 @@ class SpecjvmInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_bops = models.DecimalField('Result - bops', max_digits=12,
-            decimal_places=4)
+    result_bops = models.FloatField('Result - bops')
     jvm_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
     app_name = models.CharField('app name', max_length=256)
@@ -476,8 +464,7 @@ class SplashInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_time = models.DecimalField('Result - Time(us)', max_digits=12,
-            decimal_places=4)
+    result_time = models.FloatField('Result - Time(us)')
     app_name = models.CharField('app name', max_length=256)
     problem_size = models.CharField('Problem Size', max_length=256)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
@@ -513,12 +500,10 @@ class TpccInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_tpmc = models.DecimalField('Result - tpmC', max_digits=12,
-            decimal_places=4)
+    result_tpmc = models.FloatField('Result - tpmC')
     warehouses = models.PositiveIntegerField('WAREHOUSES')
     terminals = models.PositiveSmallIntegerField('TERMINALS')
-    run_time = models.DecimalField('RUN_TIME', max_digits=12,
-            decimal_places=4)
+    run_time = models.FloatField('RUN_TIME')
     network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
             '(Mbps)')
 
@@ -553,8 +538,7 @@ class WebServingInformation(ProjectInformation, Bottleneck):
     record_result_time = models.DateTimeField('Record Result Time',
             default=timezone.now)
 
-    result_ops = models.DecimalField('Result - OPS', max_digits=12,
-            decimal_places=4)
+    result_ops = models.FloatField('Result - OPS')
     result_passed = models.BooleanField('Result - PASSED')
     result_warnings = models.BooleanField('Result - WARNINGS')
     result_errors = models.BooleanField('Result - ERRORS')
@@ -629,8 +613,7 @@ class WebServingHardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
-    cpu_frequency = models.DecimalField('CPU Clock Frequency (GHZ)',
-            max_digits=8, decimal_places=4)
+    cpu_frequency = models.FloatField('CPU Clock Frequency (GHZ)')
     l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
     l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
