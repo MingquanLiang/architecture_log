@@ -1,13 +1,10 @@
 from django.db import models
 import django.utils.timezone as timezone
 
-# Create your models here.
 
 class ProjectInformation(models.Model):
     project_name = models.CharField('Project Name', max_length=32)
     project_id = models.CharField('Project ID', max_length=32)
-    reference_link = models.URLField('Reference Link (Confluence)',
-            default='http://10.100.8.185:8090')
 
     # TODO: every test only concerntrate certain cpu type, so can not 
     # add it into "Hardwareenvironment"
@@ -18,6 +15,8 @@ class ProjectInformation(models.Model):
     cpu_type = models.CharField('CPU Type',
             choices=CPU_Type_Choices, max_length=32, default='CPU 1.0'
             )
+    reference_link = models.URLField('Reference Link (Confluence)',
+            default='http://10.100.8.185:8090')
 
     class Meta:
         abstract = True
@@ -68,9 +67,9 @@ class HardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
-    cpu_frequency = models.FloatField('CPU Clock Frequency (GHZ)')
-    l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
-    l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
+    cpu_frequency = models.FloatField('CPU Clock Rate (GHZ)')
+    l1_instruction = models.PositiveSmallIntegerField('L1 I-Cache (KB)')
+    l1_data = models.PositiveSmallIntegerField('L1 D-Cache (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
     l3 = models.PositiveIntegerField('L3 Cache (KB)', default=0, blank=True)
     l4 = models.PositiveIntegerField('L4 Cache (KB)', default=0, blank=True)
@@ -613,9 +612,9 @@ class WebServingHardwareEnvironment(models.Model):
     byte_order = models.CharField('Litter or Big endian',
             choices=Byte_Order_Choices, max_length=32, default='big_endian'
             )
-    cpu_frequency = models.FloatField('CPU Clock Frequency (GHZ)')
-    l1_instruction = models.PositiveSmallIntegerField('L1 Instruction (KB)')
-    l1_data = models.PositiveSmallIntegerField('L1 Data (KB)')
+    cpu_frequency = models.FloatField('CPU Clock Rate (GHZ)')
+    l1_instruction = models.PositiveSmallIntegerField('L1 I-Cache (KB)')
+    l1_data = models.PositiveSmallIntegerField('L1 D-Cache (KB)')
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
     l3 = models.PositiveIntegerField('L3 Cache (KB)', default=0, blank=True)
     half_l3 = models.BooleanField('Half L3 Cache')

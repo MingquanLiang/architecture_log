@@ -44,66 +44,80 @@ class ApplicationBaseInformation(object):
                 'range_fields': ['data_scale', 'number_works',
                     'number_connections', 'number_threads'],
                 'choice_fields': ['network_bandwidth'],
+                'result_fields': ['result_max_rps', ],
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
                 'range_fields': ['thread_number'],
                 'choice_fields': ['node', 'phycpu', 'stride_size'],
+                'result_fields': ['result_time', ],
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
                 'range_fields': None,
                 'choice_fields': ['thread_number'],
+                'result_fields': ['result_time', ],
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
                 'range_fields': ['dataset_size'],
                 'choice_fields': ['app_name', 'pthread_num'],
+                'result_fields': ['result_run_time', 'result_passed', 
+                    'result_warnings', 'result_errors'],
                 }
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
                 'machine_module': st_m,
                 'range_fields': ['data_size', 'parition_size', 'workers'],
                 'choice_fields': ['processor_number'],
+                'result_fields': ['result_time', ],
                 }
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
                 'machine_module': scpu_m,
                 'range_fields': None,
                 'choice_fields': ['copies'],
+                'result_fields': ['result_int_rate_ratio',
+                    'result_fp_rate_ratio', ],
                 }
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
                 'range_fields': None,
                 'choice_fields': ['jvm_parameter','jvm_instances','warehouses'],
+                'result_fields': ['result_bops', ],
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
                 'range_fields': None,
                 'choice_fields': ['jvm_parameter', 'specjvm_parameter'],
+                'result_fields': ['result_bops', ],
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
                 'range_fields': None,
                 'choice_fields': ['problem_size'],
+                'result_fields': ['result_time', ],
                 }
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
                 'machine_module': tpc_m,
                 'range_fields': ['warehouses', 'terminals'],
                 'choice_fields': None,
+                'result_fields': ['result_tpmc', ],
                 }
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
                 'machine_module': ws_m,
                 'range_fields': None,
                 'choice_fields': None,
+                'result_fields': ['result_ops', 'result_passed',
+                    'result_warnings', 'result_errors'],
                 }
 
 
@@ -224,7 +238,7 @@ class SearchResultView(generic.TemplateView):
     1. Get the post options and search data from db.
     2. show filtered data into table or figure
     """
-    template_name = 'performance/search/result.html'
+    #template_name = 'performance/search/result.html'
 
     def __init__(self, **kwargs):
         super(SearchResultView, self).__init__(**kwargs)
@@ -232,6 +246,8 @@ class SearchResultView(generic.TemplateView):
         self.apps_base_infors_object = ApplicationBaseInformation()
         self.applications = self.apps_base_infors_object.applications
         self.apps_base_infors = self.apps_base_infors_object.app_infor
+        # The template_name should be determined by user submission
+        self.template_name = 'performance/search/result_error.html'
 
     def get_same_element_in_list(self, list_former, list_latter):
         return list(set(list_former).intersection(list_latter))
@@ -240,6 +256,15 @@ class SearchResultView(generic.TemplateView):
         field_name_list = [ field.name for field in module_name._meta.fields 
                 if field.name not in exclude_list ]
         return field_name_list
+
+    def get_all_field_verbose_name(self, module_name, exclude_list=()):
+        """
+        Still use field.name in exclude_list because field.name is stored
+        in db which is more stable.
+        """
+        field_verbose_name_list = [ field.verbose_name for field in
+                module_name._meta.fields if field.name not in exclude_list]
+        return field_verbose_name_list
 
     def convert_string_to_tuple(self, string_name):
         trans_map = str.maketrans('(),', '   ')
@@ -284,14 +309,20 @@ class SearchResultView(generic.TemplateView):
         all_post_data = request.POST
 
         # base search items
-        #post_display_form = all_post_data.get('display')
-        post_display_form = "table"
+        post_display_form = all_post_data.get('display_as')
         post_project_name = all_post_data.get('project_names')
         #post_begin_time = all_post_data.get('begin_time')
         #post_end_time = all_post_data.get('end_time')
         post_cpu_type = all_post_data.get('cpu_types')
         post_architecture = all_post_data.get('architectures')
         post_application = all_post_data.get('applications')
+
+        if post_display_form == "table":
+            self.template_name = 'performance/search/result_table.html'
+        elif post_display_form == "figure":
+            self.template_name = 'performance/search/result_figure.html'
+        else:
+            self.template_name = 'performance/search/result_error.html'
 
         # further search items related to application name
         post_app_i_module = self.apps_base_infors[
@@ -355,6 +386,12 @@ class SearchResultView(generic.TemplateView):
         m_field_name_list = self.get_all_field_name(post_app_m_module,
                 exclude_list=('dependence_information', 'last_modify_time',
                     'app_information'))
+        i_field_verbose_name_list = self.get_all_field_verbose_name(
+                post_app_i_module, exclude_list=('test_application', 
+                    'record_result_time', ))
+        m_field_verbose_name_list = self.get_all_field_verbose_name(
+                post_app_m_module, exclude_list=('dependence_information', 
+                    'last_modify_time', 'app_information'))
         record_value_list = []
         for id_value in sorted(id_list):
             i_record_list = [i for i in post_app_i_module.objects.filter(
@@ -367,7 +404,7 @@ class SearchResultView(generic.TemplateView):
             for m_record in m_record_list:
                 every_record_value = copy.deepcopy(i_record_value)
                 # FIXME:break i_module_info and m_module_info into two parts
-                every_record_value.append('   |   ')
+                every_record_value.append('    ')
                 for field_name in m_field_name_list:
                     every_record_value.append(m_record.__getattribute__(
                         field_name))
@@ -377,14 +414,12 @@ class SearchResultView(generic.TemplateView):
         kwargs = {}
         kwargs['base_search_item_value_map']=base_search_item_value_map
         kwargs['further_search_item_value_map']=further_search_item_value_map
-        kwargs['i_module_header'] = i_field_name_list
-        kwargs['m_module_header'] = m_field_name_list
+        #kwargs['i_module_header'] = i_field_name_list
+        #kwargs['m_module_header'] = m_field_name_list
+        kwargs['i_module_header'] = i_field_verbose_name_list
+        kwargs['m_module_header'] = m_field_verbose_name_list
         kwargs['record_value_list'] = record_value_list
 
-        if post_display_form == "table":
-            pass
-        elif post_display_form == "figure":
-            pass
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
