@@ -188,7 +188,8 @@ class SearchIndexView(generic.TemplateView):
         if value_range <= segment_number:
             #segment_number = 2
             return [(min_one, max_one)]
-        gaps_value = value_range // segment_number
+        #gaps_value = value_range // segment_number
+        gaps_value = value_range / segment_number
         #gaps_list = [min_one + gaps_value * i if i < segment_number else 
         #        max_one for i in range(segment_number+1)]
         gaps_list = []
