@@ -10,6 +10,7 @@
 <link rel="stylesheet" type="text/css" href="{% static "performance/css/changelists.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static "performance/css/forms.css" %}" />
 <script src="{% static "performance/js/jquery_download_from_web.js" %}"></script>
+<script src="{% static "performance/js/laydate/laydate.js" %}"></script>
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -56,6 +57,10 @@
       if (validate_required(architectures,"Please Choose Architecture")==false){
         architectures.focus();return false}
       if (validate_required(cpu_types,"Please Choose CPU Type")==false){
+        cpu_types.focus();return false}
+      if (validate_required(begin_time,"Please Choose Begin Time")==false){
+        cpu_types.focus();return false}
+      if (validate_required(end_time,"Please Choose End Time")==false){
         cpu_types.focus();return false}
       if (validate_required(display_as,"Please Choose Display Form")==false){
         display_as.focus();return false}
@@ -185,17 +190,13 @@
               </td>
 
               <td align='center'>
-                <select name="begin_time" class="row1">
-                  <option value="" disabled="disabled" selected="selected">Start From</option>
-                  <option value="">disabled now</option>
-                </select>
+                <input name="begin_time" placeholder="Input Begin Time" class="laydate-icon" onclick="laydate({
+                  istime:true, format:'YYYY-MM-DD hh:mm:ss', min:'1990-01-01 00:00:00', max:laydate.now()})">
               </td>
 
               <td align='center'>
-                <select name="end_time" class="row1">
-                  <option value="" disabled="disabled" selected="selected">End In</option>
-                  <option value="">disabled now</option>
-                </select>
+                <input name="end_time" placeholder="Input End Time" class="laydate-icon" onclick="laydate({
+                istime:true, format:'YYYY-MM-DD hh:mm:ss', min:'1990-01-01 00:00:00', max:laydate.now()})">
               </td>
 
               <td align='center'>

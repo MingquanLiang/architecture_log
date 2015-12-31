@@ -1,4 +1,5 @@
 import sys
+import datetime
 import copy
 
 from django.views import generic
@@ -45,6 +46,7 @@ class ApplicationBaseInformation(object):
                     'number_connections', 'number_threads'],
                 'choice_fields': ['network_bandwidth'],
                 'result_fields': ['result_max_rps', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
@@ -52,6 +54,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': ['thread_number'],
                 'choice_fields': ['node', 'phycpu', 'stride_size'],
                 'result_fields': ['result_time', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
@@ -59,14 +62,16 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ['thread_number'],
                 'result_fields': ['result_time', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
                 'range_fields': ['dataset_size'],
                 'choice_fields': ['app_name', 'pthread_num'],
-                'result_fields': ['result_run_time', 'result_passed', 
-                    'result_warnings', 'result_errors'],
+                'result_fields': ['result_run_time', ],
+                'result_alias_fields': ['result_passed', 'result_warnings', 
+                    'result_errors']
                 }
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
@@ -74,6 +79,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': ['data_size', 'parition_size', 'workers'],
                 'choice_fields': ['processor_number'],
                 'result_fields': ['result_time', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
@@ -82,6 +88,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ['copies'],
                 'result_fields': ['result_int_rate_ratio',
                     'result_fp_rate_ratio', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
@@ -89,6 +96,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ['jvm_parameter','jvm_instances','warehouses'],
                 'result_fields': ['result_bops', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
@@ -96,6 +104,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ['jvm_parameter', 'specjvm_parameter'],
                 'result_fields': ['result_bops', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
@@ -103,6 +112,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ['problem_size'],
                 'result_fields': ['result_time', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
@@ -110,14 +120,16 @@ class ApplicationBaseInformation(object):
                 'range_fields': ['warehouses', 'terminals'],
                 'choice_fields': None,
                 'result_fields': ['result_tpmc', ],
+                'result_alias_fields': None,
                 }
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
                 'machine_module': ws_m,
                 'range_fields': None,
                 'choice_fields': None,
-                'result_fields': ['result_ops', 'result_passed',
-                    'result_warnings', 'result_errors'],
+                'result_fields': ['result_ops',],
+                'result_alias_fields': ['result_passed', 'result_warnings', 
+                    'result_errors'],
                 }
 
 
@@ -306,24 +318,25 @@ class SearchResultView(generic.TemplateView):
         return ctx
 
     def post(self, request, *args, **kwargs):
+        # the context being rendered store into kwargs
+        kwargs = {}
         # FIXME: webserving can NOT use this post !!!!!!
         all_post_data = request.POST
 
         # base search items
         post_display_form = all_post_data.get('display_as')
         post_project_name = all_post_data.get('project_names')
-        #post_begin_time = all_post_data.get('begin_time')
-        #post_end_time = all_post_data.get('end_time')
+        post_begin_time = all_post_data.get('begin_time')
+        post_end_time = all_post_data.get('end_time')
         post_cpu_type = all_post_data.get('cpu_types')
         post_architecture = all_post_data.get('architectures')
         post_application = all_post_data.get('applications')
-
-        if post_display_form == "table":
-            self.template_name = 'performance/search/result_table.html'
-        elif post_display_form == "figure":
-            self.template_name = 'performance/search/result_figure.html'
-        else:
-            self.template_name = 'performance/search/result_error.html'
+        print("begin_time is {0}".format(post_begin_time))
+        print("end_time is {0}".format(post_end_time))
+        if post_begin_time == "":
+            print("empty input for begin_time")
+        if post_end_time == "":
+            print(".....")
 
         # further search items related to application name
         post_app_i_module = self.apps_base_infors[
@@ -335,19 +348,27 @@ class SearchResultView(generic.TemplateView):
         post_app_choice_field_list = self.apps_base_infors[post_application][
                 'choice_fields']
 
+
+        # get all chosen options of user and extract filter condition - start
         base_search_item_value_map = {}
         further_search_item_value_map = {}
         base_search_item_value_map['project_name'] = post_project_name
         base_search_item_value_map['cpu_type'] = post_cpu_type
         base_search_item_value_map['architecture'] = post_architecture
         base_search_item_value_map['application'] = post_application
-        #base_search_item_value_map['begin_time'] = post_begin_time
-        #base_search_item_value_map['end_time'] = post_end_time
+        base_search_item_value_map['begin_time'] = post_begin_time
+        base_search_item_value_map['end_time'] = post_end_time
+        post_begin_time_format = datetime.datetime.strptime(post_begin_time,
+                '%Y-%m-%d %H:%M:%S')
+        post_end_time_format = datetime.datetime.strptime(post_end_time,
+                '%Y-%m-%d %H:%M:%S')
 
         # get needed record from XXXInformation module
         i_filter_kwargs = {}
         i_filter_kwargs['project_name__exact'] = post_project_name
         i_filter_kwargs['cpu_type__exact'] = post_cpu_type
+        i_filter_kwargs['record_result_time__range'] = (post_begin_time_format,
+                post_end_time_format)
         if post_app_range_field_list is not None:
             for i in post_app_range_field_list:
                 field_value = all_post_data.get(i)
@@ -358,7 +379,6 @@ class SearchResultView(generic.TemplateView):
                     further_search_item_value_map[i] = field_value
                 else:
                     further_search_item_value_map[i] = "ALL"
-
         if post_app_choice_field_list is not None:
             for i in post_app_choice_field_list:
                 field_value = all_post_data.get(i)
@@ -372,6 +392,7 @@ class SearchResultView(generic.TemplateView):
         i_module_needed_queryset = post_app_i_module.objects.filter(
                 **i_filter_kwargs)
         i_id_list = [ record.id for record in i_module_needed_queryset ]
+
         # get needed record from XXXMachine module
         m_filter_kwargs = {}
         m_filter_kwargs['architecture_type__exact'] = post_architecture
@@ -381,45 +402,81 @@ class SearchResultView(generic.TemplateView):
                 m_module_needed_queryset ]
         # merge same value because ForeignKey in .models
         id_list = self.get_same_element_in_list(i_id_list, m_id_list)
+        # get all chosen options of user and extract filter condition - end
+        #------------------------------------------------------------------#
 
-        i_field_name_list = self.get_all_field_name(post_app_i_module,
-                exclude_list=('test_application', 'record_result_time', ))
-        m_field_name_list = self.get_all_field_name(post_app_m_module,
-                exclude_list=('dependence_information', 'last_modify_time',
-                    'app_information'))
-        i_field_verbose_name_list = self.get_all_field_verbose_name(
-                post_app_i_module, exclude_list=('test_application', 
-                    'record_result_time', ))
-        m_field_verbose_name_list = self.get_all_field_verbose_name(
-                post_app_m_module, exclude_list=('dependence_information', 
-                    'last_modify_time', 'app_information'))
-        record_value_list = []
-        for id_value in sorted(id_list):
-            i_record_list = [i for i in post_app_i_module.objects.filter(
-                id__exact=id_value)]
-            m_record_list = [i for i in post_app_m_module.objects.filter(
-                app_information_id__exact=id_value)]
-            i_record_value = [i_record_list[0].__getattribute__(field_name) for
-                    field_name in i_field_name_list]
-            # len(i_record_list) always == 1, but len(m_record_list) >= 1
-            for m_record in m_record_list:
-                every_record_value = copy.deepcopy(i_record_value)
-                # FIXME:break i_module_info and m_module_info into two parts
-                every_record_value.append('    ')
-                for field_name in m_field_name_list:
-                    every_record_value.append(m_record.__getattribute__(
-                        field_name))
-                record_value_list.append(every_record_value)
-
-        # the context being rendered store into kwargs
-        kwargs = {}
+        # public kwargs
         kwargs['base_search_item_value_map']=base_search_item_value_map
         kwargs['further_search_item_value_map']=further_search_item_value_map
-        #kwargs['i_module_header'] = i_field_name_list
-        #kwargs['m_module_header'] = m_field_name_list
-        kwargs['i_module_header'] = i_field_verbose_name_list
-        kwargs['m_module_header'] = m_field_verbose_name_list
-        kwargs['record_value_list'] = record_value_list
+
+        if post_display_form == "figure":
+            self.template_name = 'performance/search/result_figure.html'
+            # FIXME: should be get all result fields in production.
+            result_fields = self.apps_base_infors[
+                    post_application]['result_fields']
+            result_alias_fields = self.apps_base_infors[
+                    post_application]['result_alias_fields']
+            figure_needed_record_list = [ record for record in
+                    i_module_needed_queryset.order_by('record_result_time') 
+                    if record.id in id_list ]
+            result_fields_value_list = []
+            result_alias_fields_list = []
+            record_result_time_list = []
+            for record in figure_needed_record_list:
+                result_fields_value_list.append(record.__getattribute__(
+                    result_fields[0]))
+                record_result_time_list.append(record.record_result_time)
+                if result_alias_fields is not None:
+                    for i in result_alias_fields:
+                        result_alias_fields_list.append((i,
+                            record.__getattribute__(i)))
+            # for figure
+            kwargs['result_fields_value_list'] = result_fields_value_list
+            kwargs['result_alias_fields_list'] = result_alias_fields_list
+            kwargs['record_result_time_list'] = record_result_time_list
+            print(kwargs['result_fields_value_list'],
+                    kwargs['result_alias_fields_list'],
+                    kwargs['record_result_time_list'])
+        elif post_display_form == "table":
+            self.template_name = 'performance/search/result_table.html'
+            i_field_name_list = self.get_all_field_name(post_app_i_module,
+                    exclude_list=('test_application', 'record_result_time', ))
+            m_field_name_list = self.get_all_field_name(post_app_m_module,
+                    exclude_list=('dependence_information', 'last_modify_time',
+                        'app_information'))
+            i_field_verbose_name_list = self.get_all_field_verbose_name(
+                    post_app_i_module, exclude_list=('test_application', 
+                        'record_result_time', ))
+            m_field_verbose_name_list = self.get_all_field_verbose_name(
+                    post_app_m_module, exclude_list=('dependence_information', 
+                        'last_modify_time', 'app_information'))
+
+            record_value_list = []
+            # when display as table, use id of i_module as keyword
+            for id_value in sorted(id_list):
+                i_record_list = [i for i in post_app_i_module.objects.filter(
+                    id__exact=id_value)]
+                m_record_list = [i for i in post_app_m_module.objects.filter(
+                    app_information_id__exact=id_value)]
+                i_record_value = [i_record_list[0].__getattribute__(field_name) for
+                        field_name in i_field_name_list]
+                # len(i_record_list) always == 1, but len(m_record_list) >= 1
+                for m_record in m_record_list:
+                    every_record_value = copy.deepcopy(i_record_value)
+                    # FIXME:break i_module_info and m_module_info into two parts
+                    every_record_value.append('    ')
+                    for field_name in m_field_name_list:
+                        every_record_value.append(m_record.__getattribute__(
+                            field_name))
+                    record_value_list.append(every_record_value)
+
+            #kwargs['i_module_header'] = i_field_name_list
+            #kwargs['m_module_header'] = m_field_name_list
+            kwargs['i_module_header'] = i_field_verbose_name_list
+            kwargs['m_module_header'] = m_field_verbose_name_list
+            kwargs['record_value_list'] = record_value_list
+        else:
+            self.template_name = 'performance/search/result_error.html'
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
