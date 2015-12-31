@@ -65,6 +65,7 @@
     <li>Project     : {{base_search_item_value_map.project_name}}</li>
     <li>CPU Type    : {{base_search_item_value_map.cpu_type}}</li>
     <li>Architecture: {{base_search_item_value_map.architecture}}</li>
+    <li>Record Time: {{base_search_item_value_map.begin_time}} ~ {{base_search_item_value_map.end_time}}</li>
     <br>
       {% for field, field_value in further_search_item_value_map.items %}
     <li>{{field}}: {{field_value}}</li>
