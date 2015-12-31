@@ -38,6 +38,31 @@
   {%endfor%}
 </style>
 
+<script type="text/javascript">
+  function validate_required(field,alerttxt){
+    with (field){
+      if (value==null||value==""){
+        alert(alerttxt);return false
+      }
+      else {return true}
+    }
+  }
+  function validate_form(thisform){
+    with (thisform){
+      if (validate_required(application_name,"Please Choose Application Name")==false){
+        application_name.focus();return false}
+      if (validate_required(project_names,"Please Choose Project Name")==false){
+        project_names.focus();return false}
+      if (validate_required(architectures,"Please Choose Architecture")==false){
+        architectures.focus();return false}
+      if (validate_required(cpu_types,"Please Choose CPU Type")==false){
+        cpu_types.focus();return false}
+      if (validate_required(display_as,"Please Choose Display Form")==false){
+        display_as.focus();return false}
+    }
+  }
+</script>
+
 <meta name="robots" content="NONE,NOARCHIVE" />
 </head>
 
@@ -78,7 +103,7 @@
           </li>
       </ul>
       <div class="module" id="changelist">
-        <form id="changelist-form" action="{% url 'performance:search_result' %}" method="post" novalidate>
+        <form id="changelist-form" action="{% url 'performance:search_result' %}" onsubmit="return validate_form(this)" method="post">
           {% csrf_token %}
           <div class="actions">
           <p class="paginator">
@@ -124,7 +149,7 @@
             <tbody>
               <td align='center'>
                 <select id="application_name" name="applications" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Please Choose Application</option>
+                  <option value="" disabled="disabled" selected="selected">Please Choose Application</option>
                   {% for application in applications %}
                   <option value="{{ application }}">{{ application }}</option>
                   {% endfor %}
@@ -133,7 +158,7 @@
 
               <td align='center'>
                 <select name="project_names" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Please Choose Project</option>
+                  <option value="" disabled="disabled" selected="selected">Please Choose Project</option>
                   {% for project_name in project_names %}
                   <option value="{{ project_name }}">{{ project_name }}</option>
                   {% endfor %}
@@ -142,7 +167,7 @@
 
               <td align='center'>
                 <select name="architectures" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Please Choose Architecture</option>
+                  <option value="" disabled="disabled" selected="selected">Please Choose Architecture</option>
                   {% for architecture in architectures %}
                   <option value="{{ architecture }}">{{ architecture }}</option>
                   {% endfor %}
@@ -151,7 +176,7 @@
 
               <td align='center'>
                 <select name="cpu_types" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Please Choose CPU Type</option>
+                  <option value="" disabled="disabled" selected="selected">Please Choose CPU Type</option>
                   {% for cpu_type in cpu_types %}
                   <!-- option value="{{ cpu_type }}"{% if cpu_type == "CP2"%} selected="selected"{% endif %} -->
                   <option value="{{ cpu_type }}">{{ cpu_type }}</option>
@@ -161,21 +186,21 @@
 
               <td align='center'>
                 <select name="begin_time" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Start From</option>
+                  <option value="" disabled="disabled" selected="selected">Start From</option>
                   <option value="">disabled now</option>
                 </select>
               </td>
 
               <td align='center'>
                 <select name="end_time" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">End In</option>
+                  <option value="" disabled="disabled" selected="selected">End In</option>
                   <option value="">disabled now</option>
                 </select>
               </td>
 
               <td align='center'>
                 <select name="display_as" class="row1">
-                  <option value="0" disabled="disabled" selected="selected">Please Choose Display Form</option>
+                  <option value="" disabled="disabled" selected="selected">Please Choose Display Form</option>
                   <option value="table">table</option>
                   <option value="figure">figure</option>
                 </select>
