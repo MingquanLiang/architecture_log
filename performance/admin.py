@@ -20,7 +20,7 @@ class BaseMachineInline(admin.StackedInline):
                 }
                 ),
             ('CPU Information', {
-                'fields': (('architecture_type', 'byte_order'),)
+                'fields': (('architecture_type', 'byte_order', 'cpu_frequency'),)
                 }
                 ),
             ('Cache & Memory', {
@@ -39,7 +39,8 @@ class BaseMachineInline(admin.StackedInline):
 #######################################################################
 class DataCachingMachineInline(BaseMachineInline):
     model = DataCachingMachine
-    extra = 1
+    #extra = 1
+    extra = 0
 
 
 class DataCachingAdmin(admin.ModelAdmin):
@@ -47,7 +48,7 @@ class DataCachingAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_max_rps',), ('version',
-                    'record_result_time'), ('reference_link',))
+                    'record_result_time'), ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -77,7 +78,7 @@ class LmbenchAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_time',), ('version',
-                    'record_result_time'), ('reference_link',))
+                    'record_result_time'), ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -107,7 +108,7 @@ class ParsecAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_time',), ('version', 'record_result_time'),
-                    ('reference_link',))
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -130,7 +131,7 @@ class ParsecAdmin(admin.ModelAdmin):
 #######################################################################
 class SiriusSuitMachineInline(BaseMachineInline):
     new_cpu_information = ('CPU Information', {'fields':
-        (('architecture_type', 'byte_order', 'cur_freq'),)
+        (('architecture_type', 'byte_order', 'cpu_frequency'),)
         })
     fieldsets = []
     for i in BaseMachineInline.fieldsets:
@@ -149,7 +150,8 @@ class SiriusSuitAdmin(admin.ModelAdmin):
             (None, {
                 'fields': (('result_run_time', 'result_passed',
                     'result_warnings', 'result_errors'),
-                    ('version', 'record_result_time'), ('reference_link',),)
+                    ('version', 'record_result_time'),
+                    ('reference_link', 'cpu_type'),)
                 }
                 ),
             ('Project Information', {
@@ -178,8 +180,8 @@ class SparkTerasortAdmin(admin.ModelAdmin):
     inlines = [SparkTerasortMachineIncline]
     fieldsets = (
             (None, {
-                'fields': (('result_times',), ('version',
-                    'record_result_time'),('reference_link',), )
+                'fields': (('result_time',), ('version',
+                    'record_result_time'),('reference_link', 'cpu_type'), )
                 }
                 ),
             ('Project Information', {
@@ -222,7 +224,8 @@ class SpecCPUAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_int_rate_ratio', 'result_fp_rate_ratio'),
-                    ('version', 'record_result_time'), ('reference_link',))
+                    ('version', 'record_result_time'),
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -252,7 +255,8 @@ class SpecjbbAdmin(admin.ModelAdmin):
             (None, {
                 #'fields': (('result_bops',), ('version', 'record_result_time'),)
                 'fields': (('result_bops', 'jbb_attachment'),
-                    ('version', 'record_result_time'), ('reference_link',))
+                    ('version', 'record_result_time'),
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -283,7 +287,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_bops', 'jvm_attachment'),
-                    ('version', 'record_result_time'), ('reference_link',))
+                    ('version', 'record_result_time'),
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -313,7 +318,7 @@ class SplashAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_time',), ('version', 'record_result_time'),
-                    ('reference_link',))
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -343,7 +348,7 @@ class TpccAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields': (('result_tpmc',), ('version', 'record_result_time'),
-                    ('reference_link',))
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {
@@ -385,7 +390,7 @@ class WebServingAdmin(admin.ModelAdmin):
             (None, {
                 'fields': (('result_ops', 'result_passed', 'result_warnings',
                     'result_errors'), ('version', 'record_result_time'),
-                    ('reference_link',))
+                    ('reference_link', 'cpu_type'))
                 }
                 ),
             ('Project Information', {

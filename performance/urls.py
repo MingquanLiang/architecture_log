@@ -1,9 +1,13 @@
 from django.conf.urls import include, url
 #from django.contrib import admin
 
-from . import views
+from .views import SearchIndexView
+from .views import SearchResultView
+
 
 urlpatterns = [
-    url(r'^index/$', views.index, name='index'),
-    url(r'^$', views.index, name='index'),
+    url(r'^search_index/$', SearchIndexView.as_view(),
+        name='search_index'),
+    url(r'^search_result/$', SearchResultView.as_view(),
+        name='search_result'),
 ]
