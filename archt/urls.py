@@ -19,6 +19,8 @@ from django.contrib import admin
 # used for handle static files
 from django.conf import settings
 
+from django.contrib.auth import views as auth_views
+
 # TODO: How to use another URLCONF such as "from blog import urls as
 # blog_urls; url(r'^blog/', include(blog_urls)) ??????????"
 
@@ -34,4 +36,7 @@ urlpatterns = [
     # handle static files
     url(r'^static/(?P<path>.*)$','django.views.static.serve',
         {'document_root':settings.STATIC_ROOT}),
+
+    #require login
+    url(r'^accounts/login/$', auth_views.login),
 ]
