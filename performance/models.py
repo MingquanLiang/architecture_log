@@ -3,15 +3,26 @@ import django.utils.timezone as timezone
 
 
 class ProjectInformation(models.Model):
-    project_name = models.CharField('Project Name', max_length=32)
-    project_id = models.CharField('Project ID', max_length=32)
-
-    # TODO: every test only concerntrate certain cpu type, so can not 
+    Project_Name_Choices = (
+            ('CP1_TEST', 'CP1_TEST'),
+            ('CP2_TEST', 'CP2_TEST'),
+            ('CP3_TEST', 'CP3_TEST'),
+            )
+    Project_ID_Choices = (
+            ('1D', '1D'),
+            ('2D', '2D'),
+            ('3D', '3D'),
+            )
+    # every test only concerntrate certain cpu type, so can not 
     # add it into "Hardwareenvironment"
     CPU_Type_Choices = (
             ('CPU 1.0', 'CPU 1.0'),
             ('CPU 1.1', 'CPU 1.1'),
             )
+    project_name = models.CharField('Project Name',
+            choices=Project_Name_Choices, max_length=32)
+    project_id = models.CharField('Project ID', 
+            choices=Project_ID_Choices, max_length=32)
     cpu_type = models.CharField('CPU Type',
             choices=CPU_Type_Choices, max_length=32, default='CPU 1.0'
             )
@@ -20,6 +31,7 @@ class ProjectInformation(models.Model):
 
     class Meta:
         abstract = True
+
 
 class HardwareEnvironment(models.Model):
     """
@@ -73,10 +85,11 @@ class HardwareEnvironment(models.Model):
     l2 = models.PositiveSmallIntegerField('L2 Cache (KB)')
     l3 = models.PositiveIntegerField('L3 Cache (KB)', default=0, blank=True)
     l4 = models.PositiveIntegerField('L4 Cache (KB)', default=0, blank=True)
-    memory = models.PositiveIntegerField('Memory (MB)')
+    memory = models.PositiveIntegerField('Memory (GB)')
 
     class Meta:
         abstract = True
+
 
 class SoftwareEnvironment(models.Model):
     OS_Type_Choices = (
@@ -112,6 +125,7 @@ class SoftwareEnvironment(models.Model):
     class Meta:
         abstract = True
 
+
 class Bottleneck(models.Model):
     neck_cpu = models.BooleanField('CPU Neck')
     neck_io = models.BooleanField('IO Neck')
@@ -122,9 +136,9 @@ class Bottleneck(models.Model):
         abstract = True
 
 
+
 APPLICATIONS = ('Data Caching', 'Lmbench', 'Parsec', 'Sirius', 'Spark Terasort',
-        'SPEC CPU', 'SPEC jbb', 'SPEC jvm', 'Splash', 'TPCC', 'WebServing'
-        )
+        'SPEC CPU', 'SPEC jbb', 'SPEC jvm', 'Splash', 'TPCC', 'WebServing', )
 
 #####################       Application From Here          ###################
 ##############################################################################
@@ -234,6 +248,7 @@ class ParsecInformation(ProjectInformation, Bottleneck):
     class Meta:
         abstract = False
 
+
 class ParsecMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
@@ -314,6 +329,7 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
     class Meta:
         abstract = False
 
+
 class SparkTerasortMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
@@ -351,6 +367,7 @@ class SpecCPUInformation(ProjectInformation, Bottleneck):
 
     class Meta:
         abstract = False
+
 
 class SpecCPUMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
@@ -440,6 +457,7 @@ class SpecjvmInformation(ProjectInformation, Bottleneck):
     class Meta:
         abstract = False
 
+
 class SpecjvmMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
@@ -475,6 +493,7 @@ class SplashInformation(ProjectInformation, Bottleneck):
 
     class Meta:
         abstract = False
+
 
 class SplashMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
@@ -515,6 +534,7 @@ class TpccInformation(ProjectInformation, Bottleneck):
     class Meta:
         abstract = False
 
+
 class TpccMachine(HardwareEnvironment, SoftwareEnvironment):
     last_modify_time = models.DateTimeField('Last Modified Time',
             auto_now=True)
@@ -527,6 +547,7 @@ class TpccMachine(HardwareEnvironment, SoftwareEnvironment):
 
     class Meta:
         abstract = False
+
 
 ##############################################################################
 class WebServingInformation(ProjectInformation, Bottleneck):
@@ -637,6 +658,4 @@ class WebServingMachine(WebServingHardwareEnvironment, SoftwareEnvironment):
 
     class Meta:
         abstract = False
-
-
 

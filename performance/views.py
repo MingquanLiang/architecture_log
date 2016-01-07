@@ -22,8 +22,7 @@ from .models import WebServingInformation as ws_i, WebServingMachine as ws_m
 from .models import WebServingHardwareEnvironment as ws_h
 
 
-# FIXME: Get project_names should search all records in db
-project_names = ['CP1_TEST', 'CP2_TEST', 'CP3_TEST']
+project_names = [ i[0] for i in ProjectInformation.Project_Name_Choices ]
 architectures = [ i[0] for i in HardwareEnvironment.Architecture_Type_Choices ]
 cpu_types = [ i[0] for i in ProjectInformation.CPU_Type_Choices ]
 
