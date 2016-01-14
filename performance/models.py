@@ -123,7 +123,7 @@ class SoftwareEnvironment(models.Model):
     os_type = models.CharField('Operation System', choices=OS_Type_Choices,
             max_length=64, default='Ubuntu 14.04.2')
     kernel_version = models.CharField('Kernel Version',
-            choices=kernel_version, max_length=64, default='3.16.0')
+            choices=kernel_version, max_length=64, default='3.16.0-30-generic')
     dependence_information = models.TextField('Dependency Instruction',
             max_length=1024, blank=True)
 
