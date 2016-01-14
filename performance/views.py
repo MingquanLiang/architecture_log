@@ -22,8 +22,7 @@ from .models import WebServingInformation as ws_i, WebServingMachine as ws_m
 from .models import WebServingHardwareEnvironment as ws_h
 
 
-# FIXME: Get project_names should search all records in db
-project_names = ['CP1_TEST', 'CP2_TEST', 'CP3_TEST']
+project_names = [ i[0] for i in ProjectInformation.Project_Name_Choices ]
 architectures = [ i[0] for i in HardwareEnvironment.Architecture_Type_Choices ]
 cpu_types = [ i[0] for i in ProjectInformation.CPU_Type_Choices ]
 
@@ -42,94 +41,103 @@ class ApplicationBaseInformation(object):
         self.app_infor['datacaching'] = {
                 'information_module': dc_i,
                 'machine_module': dc_m,
-                'range_fields': ['data_scale', 'number_works',
-                    'number_connections', 'number_threads'],
-                'choice_fields': ['network_bandwidth'],
-                'result_fields': ['result_max_rps', ],
-                'result_alias_fields': None,
+                'range_fields': ('data_scale', 'number_works',
+                    'number_connections', 'number_threads'),
+                'choice_fields': ('network_bandwidth',),
+                'result_fields': ('result_max_rps', ),
+                'result_alias_fields' : ('data_scale', 'number_works',
+                    'number_connections', 'number_threads', 
+                    'network_bandwidth', 'reference_link', ),
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
-                'range_fields': ['thread_number'],
-                'choice_fields': ['node', 'phycpu', 'stride_size'],
-                'result_fields': ['result_time', ],
-                'result_alias_fields': None,
+                'range_fields': ('thread_number', ),
+                'choice_fields': ('node', 'phycpu', 'stride_size'),
+                'result_fields': ('result_time', ),
+                'result_alias_fields' : ('thread_number', 'node', 'phycpu',
+                    'stride_size', 'reference_link', ),
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
                 'range_fields': None,
-                'choice_fields': ['thread_number'],
-                'result_fields': ['result_time', ],
-                'result_alias_fields': None,
+                'choice_fields': ('thread_number', ),
+                'result_fields': ('result_time', ),
+                'result_alias_fields' : ('thread_number', 'result_time', 
+                    'reference_link', ),
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
-                'range_fields': ['dataset_size'],
-                'choice_fields': ['app_name', 'pthread_num'],
-                'result_fields': ['result_run_time', ],
-                'result_alias_fields': ['result_passed', 'result_warnings', 
-                    'result_errors']
+                'range_fields': ('dataset_size', ),
+                'choice_fields': ('app_name', 'pthread_num'),
+                'result_fields': ('result_run_time', ),
+                'result_alias_fields': ('reference_link', 'result_passed', 
+                    'result_warnings', 'result_errors'),
                 }
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
                 'machine_module': st_m,
-                'range_fields': ['data_size', 'parition_size', 'workers'],
-                'choice_fields': ['processor_number'],
-                'result_fields': ['result_time', ],
-                'result_alias_fields': None,
+                'range_fields': ('data_size', 'parition_size', 'workers'),
+                'choice_fields': ('processor_number', ),
+                'result_fields': ('result_time', ),
+                'result_alias_fields' : ('data_size', 'parition_size',
+                    'workers', 'processor_number', 'reference_link', ),
                 }
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
                 'machine_module': scpu_m,
                 'range_fields': None,
-                'choice_fields': ['copies'],
-                'result_fields': ['result_int_rate_ratio',
-                    'result_fp_rate_ratio', ],
-                'result_alias_fields': None,
+                'choice_fields': ('copies', ),
+                # TODO: more than one result fields.
+                'result_fields': ('result_int_rate_ratio',
+                    'result_fp_rate_ratio', ),
+                'result_alias_fields' : ('copies','reference_link', ),
                 }
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
                 'range_fields': None,
-                'choice_fields': ['jvm_parameter','jvm_instances','warehouses'],
-                'result_fields': ['result_bops', ],
-                'result_alias_fields': None,
+                'choice_fields': ('jvm_parameter','jvm_instances','warehouses'),
+                'result_fields': ('result_bops', ),
+                'result_alias_fields' : ('jvm_parameter','jvm_instances', 
+                    'warehouses', 'reference_link', ),
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
                 'range_fields': None,
-                'choice_fields': ['jvm_parameter', 'specjvm_parameter'],
-                'result_fields': ['result_bops', ],
-                'result_alias_fields': None,
+                'choice_fields': ('jvm_parameter', 'specjvm_parameter'),
+                'result_fields': ('result_bops', ),
+                'result_alias_fields' : ('jvm_parameter', 'specjvm_parameter',
+                    'reference_link', ),
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
                 'range_fields': None,
-                'choice_fields': ['problem_size'],
-                'result_fields': ['result_time', ],
-                'result_alias_fields': None,
+                'choice_fields': ('problem_size', ),
+                'result_fields': ('result_time', ),
+                'result_alias_fields' : ('problem_size', 'reference_link', ),
                 }
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
                 'machine_module': tpc_m,
-                'range_fields': ['warehouses', 'terminals'],
+                'range_fields': ('warehouses', 'terminals'),
                 'choice_fields': None,
-                'result_fields': ['result_tpmc', ],
-                'result_alias_fields': None,
+                'result_fields': ('result_tpmc', ),
+                'result_alias_fields' : ('warehouses', 'terminals', 
+                    'reference_link', ),
                 }
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
                 'machine_module': ws_m,
                 'range_fields': None,
                 'choice_fields': None,
-                'result_fields': ['result_ops',],
-                'result_alias_fields': ['result_passed', 'result_warnings', 
-                    'result_errors'],
+                'result_fields': ('result_ops', ),
+                'result_alias_fields': ('reference_link', 'result_passed', 
+                    'result_warnings', 'result_errors'),
                 }
 
 
@@ -331,12 +339,6 @@ class SearchResultView(generic.TemplateView):
         post_cpu_type = all_post_data.get('cpu_types')
         post_architecture = all_post_data.get('architectures')
         post_application = all_post_data.get('applications')
-        print("begin_time is {0}".format(post_begin_time))
-        print("end_time is {0}".format(post_end_time))
-        if post_begin_time == "":
-            print("empty input for begin_time")
-        if post_end_time == "":
-            print(".....")
 
         # further search items related to application name
         post_app_i_module = self.apps_base_infors[
@@ -420,23 +422,15 @@ class SearchResultView(generic.TemplateView):
                     i_module_needed_queryset.order_by('record_result_time') 
                     if record.id in id_list ]
             result_fields_value_list = []
-            result_alias_fields_list = []
-            record_result_time_list = []
             for record in figure_needed_record_list:
-                result_fields_value_list.append(record.__getattribute__(
-                    result_fields[0]))
-                record_result_time_list.append(record.record_result_time)
-                if result_alias_fields is not None:
-                    for i in result_alias_fields:
-                        result_alias_fields_list.append((i,
-                            record.__getattribute__(i)))
-            # for figure
+                result_x_value = 1000 * int(
+                        record.record_result_time.strftime('%s'))
+                result_y_value = record.__getattribute__(result_fields[0])
+                result_fields_value_list.append((
+                        result_x_value, {result_fields[0]: result_y_value}, 
+                        {i:record.__getattribute__(i) for i 
+                            in result_alias_fields},))
             kwargs['result_fields_value_list'] = result_fields_value_list
-            kwargs['result_alias_fields_list'] = result_alias_fields_list
-            kwargs['record_result_time_list'] = record_result_time_list
-            print(kwargs['result_fields_value_list'],
-                    kwargs['result_alias_fields_list'],
-                    kwargs['record_result_time_list'])
         elif post_display_form == "table":
             self.template_name = 'performance/search/result_table.html'
             i_field_name_list = self.get_all_field_name(post_app_i_module,
