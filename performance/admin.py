@@ -41,6 +41,7 @@ class DataCachingMachineInline(BaseMachineInline):
     model = DataCachingMachine
     #extra = 1
     extra = 0
+    min_num = 1
 
 
 class DataCachingAdmin(admin.ModelAdmin):
@@ -71,6 +72,7 @@ class DataCachingAdmin(admin.ModelAdmin):
 #######################################################################
 class LmbenchMachineInline(BaseMachineInline):
     model = LmbenchMachine
+    min_num = 1
     max_num = 1
 
 class LmbenchAdmin(admin.ModelAdmin):
@@ -101,6 +103,7 @@ class LmbenchAdmin(admin.ModelAdmin):
 #######################################################################
 class ParsecMachineInline(BaseMachineInline):
     model = ParsecMachine
+    min_num = 1
     max_num = 1
 
 class ParsecAdmin(admin.ModelAdmin):
@@ -141,6 +144,7 @@ class SiriusSuitMachineInline(BaseMachineInline):
             fieldsets.append(i)
 
     model = SiriusSuitMachine
+    min_num = 1
     max_num = 1
 
 
@@ -173,6 +177,7 @@ class SiriusSuitAdmin(admin.ModelAdmin):
 #######################################################################
 class SparkTerasortMachineIncline(BaseMachineInline):
     model = SparkTerasortMachine
+    min_num = 1
     max_num = 1
 
 
@@ -216,6 +221,7 @@ class SpecCPUMachineInline(BaseMachineInline):
             fieldsets.append(i)
 
     model = SpecCPUMachine
+    min_num = 1
     max_num = 1
 
 
@@ -247,6 +253,7 @@ class SpecCPUAdmin(admin.ModelAdmin):
 #######################################################################
 class SpecjbbMachineInline(BaseMachineInline):
     model = SpecjbbMachine
+    min_num = 1
     max_num = 1
 
 class SpecjbbAdmin(admin.ModelAdmin):
@@ -279,6 +286,7 @@ class SpecjbbAdmin(admin.ModelAdmin):
 #######################################################################
 class SpecjvmMachineInline(BaseMachineInline):
     model = SpecjvmMachine
+    min_num = 1
     max_num = 1
 
 
@@ -311,6 +319,7 @@ class SpecjvmAdmin(admin.ModelAdmin):
 #######################################################################
 class SplashMachineInline(BaseMachineInline):
     model = SplashMachine
+    min_num = 1
     max_num = 1
 
 class SplashAdmin(admin.ModelAdmin):
@@ -341,6 +350,7 @@ class SplashAdmin(admin.ModelAdmin):
 class TpccMachineInline(BaseMachineInline):
     model = TpccMachine
     extra = 1
+    min_num = 1
     max_num = 2
 
 class TpccAdmin(admin.ModelAdmin):
@@ -382,6 +392,7 @@ class WebServingMachineInline(BaseMachineInline):
             fieldsets.append(i)
     model = WebServingMachine
     extra = 1
+    min_num = 1
     max_num = 3
 
 class WebServingAdmin(admin.ModelAdmin):
