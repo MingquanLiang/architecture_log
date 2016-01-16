@@ -71,6 +71,10 @@
             <a href="{% url 'performance:search_index' %}">Make a New Data Searching </a>
             or
             <a href="/admin/"> Go Home </a>
+            <br>
+            {% if graph_error_message %}
+              Or: You must be choose the option of display as graph but error further configurations.
+            {% endif %}
           </p>
 
         </form>

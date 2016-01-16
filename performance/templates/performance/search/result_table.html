@@ -83,10 +83,17 @@
         <form id="changelist-form" action="" method="post" novalidate><input type='hidden' name='' value='' />
         {% if kwargs.record_value_list %}
           <div class="actions">
-          <p class="paginator">
-            &lt--------{{base_search_item_value_map.application}} Information ...... Machine Information --------&gt
-            Sliding to the right to Show All
-          </p>
+            <p class="paginator">
+              &lt--------{{base_search_item_value_map.application}} Information ...... Machine Information --------&gt
+              Sliding to the right to Show All
+            </p>
+            <ul class="object-tools">
+                <li>
+                  <a href="{% url 'performance:report_output'%}">
+                    Output Performance Analysis Report
+                  </a>
+                </li>
+            </ul>
           </div>
 
           <div class="results">
