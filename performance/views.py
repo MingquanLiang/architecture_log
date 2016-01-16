@@ -371,6 +371,7 @@ class SearchResultView(generic.TemplateView):
         i_filter_kwargs['cpu_type__exact'] = post_cpu_type
         i_filter_kwargs['record_result_time__range'] = (post_begin_time_format,
                 post_end_time_format)
+        graph_x_field_list = []
         if post_app_range_field_list is not None:
             for i in post_app_range_field_list:
                 field_value = all_post_data.get(i)
@@ -381,6 +382,7 @@ class SearchResultView(generic.TemplateView):
                     further_search_item_value_map[i] = field_value
                 else:
                     further_search_item_value_map[i] = "ALL"
+                    graph_x_field_list.append(i)
         if post_app_choice_field_list is not None:
             for i in post_app_choice_field_list:
                 field_value = all_post_data.get(i)
@@ -390,6 +392,7 @@ class SearchResultView(generic.TemplateView):
                     further_search_item_value_map[i] = field_value
                 else:
                     further_search_item_value_map[i] = "ALL"
+                    graph_x_field_list.append(i)
 
         i_module_needed_queryset = post_app_i_module.objects.filter(
                 **i_filter_kwargs)
@@ -411,7 +414,33 @@ class SearchResultView(generic.TemplateView):
         kwargs['base_search_item_value_map']=base_search_item_value_map
         kwargs['further_search_item_value_map']=further_search_item_value_map
 
-        if post_display_form == "figure":
+        if post_display_form == "graph":
+            if len(graph_x_field_list) != 1:
+                self.template_name = 'performance/search/result_error.html'
+                kwargs['graph_error_message'] = "graph_error"
+            else:
+                self.template_name = 'performance/search/result_graph.html'
+                result_fields = self.apps_base_infors[
+                        post_application]['result_fields']
+                result_alias_fields = self.apps_base_infors[
+                        post_application]['result_alias_fields']
+                graph_x_field = graph_x_field_list[0]
+                graph_y_field = result_fields[0]
+                figure_needed_record_list = [ record for record in
+                        i_module_needed_queryset.order_by(graph_x_field) 
+                        if record.id in id_list ]
+                result_fields_value_list = []
+                for record in figure_needed_record_list:
+                    result_x_value = record.__getattribute__(graph_x_field)
+                    result_y_value = record.__getattribute__(graph_y_field)
+                    result_fields_value_list.append((
+                        result_x_value, result_y_value,
+                        {i:record.__getattribute__(i) for i 
+                            in result_alias_fields},))
+                kwargs['graph_x_field'] = graph_x_field
+                kwargs['graph_y_field'] = graph_y_field
+                kwargs['result_fields_value_list'] = result_fields_value_list
+        elif post_display_form == "figure":
             self.template_name = 'performance/search/result_figure.html'
             # FIXME: should be get all result fields in production.
             result_fields = self.apps_base_infors[
@@ -476,3 +505,5 @@ class SearchResultView(generic.TemplateView):
         return self.render_to_response(context)
 
 
+class ReportOutputView(generic.TemplateView):
+    template_name = 'performance/search/report_output.html'

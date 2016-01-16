@@ -27,6 +27,11 @@ $(function () {
 
         xAxis: {
           type: 'category',
+          categories: [
+            {% for value_pair in result_fields_value_list %}
+              {{value_pair.0}},
+            {% endfor %}
+          ],
           title: {
             text: '{{graph_x_field}}'
           }
@@ -43,12 +48,6 @@ $(function () {
           enabled: false
         },
 
-        tooltip: {
-          valueDecimals: 4,
-          headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
-          pointFormat: '<span style="color:{point.color}">\u25cf {point.y}</span><br/>'
-        },
-
         plotOptions: {
           spline: {
             marker: {
@@ -60,18 +59,30 @@ $(function () {
         },
 
         series: [{
-          //name: 'Winter 2012-2013',
           data: [
             {% for value_pair in result_fields_value_list %}
-              ['{{value_pair.0}}', 0],
+            {
+              //color: '#00FF00',
+              text: "{% for alias_name, alias_value in value_pair.2.items %} \
+                {{alias_name}} : {{alias_value}}<br/>\
+              {% endfor %}\
+              ",
+              y: {{value_pair.1}}
+            },
             {% endfor %}
-              ['LL', 0.66]
           ],
           color: 'red',
           marker: {
             enabled : true,
             fillColor : 'black'
+          },
+
+          tooltip: {
+            valueDecimals: 4,
+            headerFormat: '<span style="font-size: 10px">{{graph_x_field}}: {point.key}</span><br/>',
+            pointFormat: '<span style="color:{point.color}">\u25cf {{graph_y_field}}: {point.y}</span><br/>{point.text}'
           }
+
         }]
     });
 });
