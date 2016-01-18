@@ -134,10 +134,16 @@ class ApplicationBaseInformation(object):
                 'information_module': ws_i,
                 'machine_module': ws_m,
                 'range_fields': None,
-                'choice_fields': None,
+                'choice_fields': ('warm_up', 'con_users', 'pm_static',
+                    'pm_max_connections', 'sql_max_connections',
+                    #'worker_processes', 'worker_connection',
+                    'network_bandwidth', ),
                 'result_fields': ('result_ops', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
-                    'result_warnings', 'result_errors'),
+                    'result_warnings', 'result_errors', 'warm_up', 'con_users',
+                    'pm_static', 'pm_max_connections', 'sql_max_connections',
+                    'worker_processes', 'worker_connection',
+                    'network_bandwidth', ),
                 }
 
 
@@ -168,8 +174,10 @@ class SearchIndexView(generic.TemplateView):
                     apps_base_infors[app]['range_fields'],
                     apps_base_infors[app]['choice_fields'],
                     )
-        # FIXME: webserving should be handled differently
-        app_infors['webserving'] = self.get_webserving_information()
+        app_infors_webserving_base = app_infors['webserving']
+        app_infors_webserving_extra = self.get_webserving_information()
+        app_infors['webserving'] = dict(app_infors_webserving_base,
+                **app_infors_webserving_extra)
 
         # render the context to template system
         ctx['project_names'] = project_names
@@ -181,16 +189,21 @@ class SearchIndexView(generic.TemplateView):
 
     def get_webserving_information(self):
         """
-        webserving filter condition:
-        # filter: 1) machine_side=backend && architecture_type
-        #         2) machine_side=frontend && half_l3=True/False
-        #         3) machine_side=backend && half_l3=True/False
+        add more 3 webserving filter condition:
+        1. frontend_half_l3 = machine_side==frontend && half_l3
+        2. backend_half_l3 = machine_side==backend && half_l3
+        3. concurrent_connections = (worker_connection, worker_processes)
         """
         app_data = {}
-        app_data['architecture_type'] = [ i[0] for i in
-                ws_h.Architecture_Type_Choices ]
-        app_data['machine_side'] = [ i[0] for i in ws_h.Machine_Side_Choices ]
-        app_data['half_l3'] = [True, False]
+        all_webserving_records = [i for i in ws_i.objects.all()]
+        worker_connection_options = [ i.worker_connection for i in
+                all_webserving_records ]
+        worker_processes = [ i.worker_processes for i in
+                all_webserving_records ]
+        app_data['concurrent_connections'] = [ (x,y) for x in
+                worker_connection_options for y in worker_processes ]
+        app_data['frontend_half_l3'] = [True, False]
+        app_data['backend_half_l3'] = [True, False]
         return app_data
 
     def get_limit_value(self, module_info, field_name):
@@ -394,6 +407,23 @@ class SearchResultView(generic.TemplateView):
                     further_search_item_value_map[i] = "ALL"
                     graph_x_field_list.append(i)
 
+        if post_application == 'webserving':
+            concurrent_connections_value = all_post_data.get(
+                    'concurrent_connections')
+            worker_connection = concurrent_connections_value[0]
+            worker_processes = concurrent_connections_value[1]
+            if concurrent_connections_value != "all_options":
+                i_filter_kwargs['worker_connection__exact'] = \
+                        worker_connection
+                i_filter_kwargs['worker_processes__exact'] = \
+                        worker_processes
+                further_search_item_value_map['concurrent_connections'] \
+                        = concurrent_connections_value
+            else:
+                further_search_item_value_map['concurrent_connections'] \
+                        = "ALL"
+                graph_x_field_list.append('concurrent_connections')
+
         i_module_needed_queryset = post_app_i_module.objects.filter(
                 **i_filter_kwargs)
         i_id_list = [ record.id for record in i_module_needed_queryset ]
@@ -401,6 +431,27 @@ class SearchResultView(generic.TemplateView):
         # get needed record from XXXMachine module
         m_filter_kwargs = {}
         m_filter_kwargs['architecture_type__exact'] = post_architecture
+        if post_application == 'webserving':
+            frontend_half_l3 = all_post_data.get('frontend_half_l3')
+            backend_half_l3 = all_post_data.get('backend_half_l3')
+            if frontend_half_l3 != "all_options":
+                m_filter_kwargs['machine_side__exact'] = 'frontend'
+                m_filter_kwargs['half_l3__exact'] = frontend_half_l3
+                further_search_item_value_map['frontend_half_l3'] = \
+                        frontend_half_l3
+            else:
+                further_search_item_value_map['frontend_half_l3'] = \
+                        "ALL"
+                graph_x_field_list.append('frontend_half_l3')
+            if backend_half_l3 != "all_options":
+                m_filter_kwargs['machine_side__exact'] = 'backend'
+                m_filter_kwargs['half_l3__exact'] = backend_half_l3
+                further_search_item_value_map['backend_half_l3'] = \
+                        backend_half_l3
+            else:
+                further_search_item_value_map['backend_half_l3'] = \
+                        "ALL"
+                graph_x_field_list.append('backend_half_l3')
         m_module_needed_queryset = post_app_m_module.objects.filter(
                 **m_filter_kwargs)
         m_id_list = [ record.app_information_id for record in
