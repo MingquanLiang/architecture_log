@@ -432,6 +432,7 @@ class SearchResultView(generic.TemplateView):
         m_filter_kwargs = {}
         m_filter_kwargs['architecture_type__exact'] = post_architecture
         if post_application == 'webserving':
+            # some special fields for webserving
             frontend_half_l3 = all_post_data.get('frontend_half_l3')
             backend_half_l3 = all_post_data.get('backend_half_l3')
             if frontend_half_l3 != "all_options":
