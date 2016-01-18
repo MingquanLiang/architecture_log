@@ -1,0 +1,141 @@
+# make an example in deploying django in production environment
+1 set "DEBUG = True" into "DEBUG = False" and set "DataDebug = True" in archt/settings.py
+2 change uwsgi and nginx related to django and link nginx conf file into /etc/nginx/conf.d/
+3 change the "baseDir" in auto-manage-django.sh
+
+the following is the example of make baseDir="/opt/architecture/architecture_log" and listen 8000 port 
+
+/*-------------- auto-manage-django.sh -----------------*/
+#!/bin/bash
+#This is a script used for start uwsgi + nginx
+baseDir="/opt/architecture/architecture_log"
+logDir="${baseDir}/log"
+cacheDir="${baseDir}/cache"
+uwsgiIni="mysite_uwsgi.ini"
+logFile="architecture_log.log"
+if [ ! -d ${logDir} ]
+then
+    mkdir -p ${logDir}
+    mkdir -p ${cacheDir}
+fi
+case "$1" in
+    start)
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Try To Startup Django + uwsgi + nginx ... " | tee -a ${logDir}/${logFile}
+        chown -R nginx:root ${baseDir}
+        cd ${baseDir}
+        export PYTHON_EGG_CACHE=${cacheDir}
+        nohup /usr/local/bin/uwsgi --ini ${uwsgiIni} >> ${logDir}/${logFile} 2>&1 &
+        ret=$?
+        [ "$?" != "0" ] && { echo "Failed To read uwsgi ini file" | tee -a ${logDir}/${logFile} ; exit 1 ; }
+        sleep 3
+        ps -elf | grep uwsgi | grep -v grep 2>&1 >/dev/null
+        ret=$?
+        if [ "${ret}" == "0" ]
+        then
+            echo "==> It is OK for uwsgi to Startup" | tee -a ${logDir}/${logFile}
+            #service nginx status | grep 'stop' 2>&1 >/dev/null
+            systemctl status nginx.service | grep Active | grep dead 2>&1 >/dev/null
+            ret=$?
+            if [ "$ret" == "0" ]
+            then
+                systemctl start nginx.service
+            else
+                systemctl stop nginx.service
+                sleep 5
+                systemctl start nginx.service
+            fi
+        else
+            echo "==> Failed To Startup uwsgi" | tee -a ${logDir}/${logFile}
+        fi
+        ;;
+    stop)
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Try To Stop Django + uwsgi ... " | tee -a ${logDir}/${logFile}
+        killall uwsgi
+        sleep 2
+        if [ "x$(ps -elf | grep uwsgi | grep -v grep)" != "x" ]
+        then
+            killall -9 uwsgi
+            sleep 2
+            if [ "x$(ps -elf | grep uwsgi | grep -v grep)" != "x" ]
+            then
+                echo "Failed to Stop uwsgi, please stop it manually or reboot your system" | tee -a ${logDir}/${logFile}
+                exit 2
+            fi
+        fi
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
+
+/* --------------------- mysite_uwsgi.ini ---------------------- */
+[uwsgi]
+# Django-related settings
+# the base directory (full path)
+chdir           = /opt/architecture/architecture_log
+# Django's wsgi file
+module          = archt.wsgi
+pythonpath = /opt/architecture/architecture_log
+# the virtualenv (full path)
+#home            = /
+uid     = nginx
+gid     = nginx
+
+# process-related settings
+# master
+master          = true
+# maximum number of worker processes
+processes       = 4
+# the socket (use the full path to be safe
+socket          = /opt/architecture/architecture_log/log/mysite.sock
+#socket          = 127.0.0.1:8001
+# ... with appropriate permissions - may be needed
+#chmod-socket    = 664
+chmod-socket = 666
+# clear environment on exit
+vacuum          = true
+
+
+/* --------------------- mysite_nginx.conf ---------------------- */
+# the upstream component nginx needs to connect to
+upstream django {
+ #server unix:///home/project/mysite/mysite.sock; # for a file socket
+ #server unix:///tmp/mysite.sock; # for a file socket
+ server unix:///opt/architecture/architecture_log/log/mysite.sock;
+ #server 127.0.0.1:8001; # for a web port socket
+}
+
+# configuration of the server
+server {
+ # the port your site will be served on
+ listen 8000;
+ # the domain name it will serve for
+ #server_name 127.0.0.1 10.100.8.185; # substitute your machine's IP address or FQDN
+ server_name 127.0.0.1 192.168.1.102; # substitute your machine's IP address or FQDN
+ charset utf-8;
+
+# max upload size
+ client_max_body_size 75M; # adjust to taste
+ client_body_buffer_size 8M; # add by mqliang
+
+# Django media
+ location /media {
+ alias /opt/architecture/architecture_log/media; # your Django project's media files - amend as required
+ }
+
+location /static {
+ alias /opt/architecture/architecture_log/static; # your Django project's static files - amend as required
+ }
+
+# Finally, send all non-media requests to the Django server.
+ location / {
+ #uwsgi_pass 127.0.0.1:8001;
+ uwsgi_pass django;
+ include /etc/nginx/uwsgi_params; # the uwsgi_params file you installed
+ }
+}
