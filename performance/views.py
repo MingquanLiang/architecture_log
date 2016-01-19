@@ -444,7 +444,8 @@ class SearchResultView(generic.TemplateView):
             backend_half_l3 = all_post_data.get('backend_half_l3')
             if frontend_half_l3 != "all_options":
                 m_filter_kwargs['machine_side__exact'] = 'frontend'
-                m_filter_kwargs['half_l3__exact'] = frontend_half_l3
+                m_filter_kwargs['half_l3__exact'] = True if frontend_half_l3 \
+                        == "True" else False
                 further_search_item_value_map['frontend_half_l3'] = \
                         frontend_half_l3
             else:
@@ -453,7 +454,8 @@ class SearchResultView(generic.TemplateView):
                 graph_x_field_list.append('frontend_half_l3')
             if backend_half_l3 != "all_options":
                 m_filter_kwargs['machine_side__exact'] = 'backend'
-                m_filter_kwargs['half_l3__exact'] = backend_half_l3
+                m_filter_kwargs['half_l3__exact'] = True if backend_half_l3 \
+                        == "True" else False
                 further_search_item_value_map['backend_half_l3'] = \
                         backend_half_l3
             else:
