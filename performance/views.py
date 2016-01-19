@@ -1,6 +1,7 @@
 import sys
 import datetime
 import copy
+import math
 
 from django.views import generic
 from django.contrib.auth.decorators import login_required
@@ -218,8 +219,7 @@ class SearchIndexView(generic.TemplateView):
 
     def get_gaps_value_list(self, min_one, max_one, segment_number=5):
         value_range = max_one - min_one
-        if value_range <= segment_number:
-            #segment_number = 2
+        if value_range <= (segment_number * 2):
             return [(min_one, max_one)]
         #gaps_value = value_range // segment_number
         gaps_value = value_range / segment_number
@@ -228,7 +228,10 @@ class SearchIndexView(generic.TemplateView):
         gaps_list = []
         previous_one = min_one
         for i in range(1, segment_number):
-            next_one = min_one + i * gaps_value
+            if i % 2 == 1:
+                next_one = math.floor(min_one + i * gaps_value)
+            else:
+                next_one = math.ceil(min_one + i * gaps_value)
             gaps_list.append((previous_one, next_one))
             previous_one = 1 + next_one
         gaps_list.append((previous_one, max_one))
