@@ -408,8 +408,8 @@ class SearchResultView(generic.TemplateView):
                     graph_x_field_list.append(i)
 
         if post_application == 'webserving':
-            concurrent_connections_value = all_post_data.get(
-                    'concurrent_connections')
+            concurrent_connections_value = self.convert_string_to_tuple(
+                    all_post_data.get('concurrent_connections'))
             worker_connection = concurrent_connections_value[0]
             worker_processes = concurrent_connections_value[1]
             if concurrent_connections_value != "all_options":
