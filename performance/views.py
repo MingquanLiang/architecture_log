@@ -200,8 +200,8 @@ class SearchIndexView(generic.TemplateView):
                 all_webserving_records ]
         worker_processes = [ i.worker_processes for i in
                 all_webserving_records ]
-        app_data['concurrent_connections'] = [ (x,y) for x in
-                worker_connection_options for y in worker_processes ]
+        app_data['concurrent_connections'] = list({(x,y) for x in
+                worker_connection_options for y in worker_processes })
         app_data['frontend_half_l3'] = [True, False]
         app_data['backend_half_l3'] = [True, False]
         return app_data
@@ -408,11 +408,13 @@ class SearchResultView(generic.TemplateView):
                     graph_x_field_list.append(i)
 
         if post_application == 'webserving':
-            concurrent_connections_value = self.convert_string_to_tuple(
-                    all_post_data.get('concurrent_connections'))
-            worker_connection = concurrent_connections_value[0]
-            worker_processes = concurrent_connections_value[1]
-            if concurrent_connections_value != "all_options":
+            concurrent_connections_temp = all_post_data.get(
+                    'concurrent_connections')
+            if concurrent_connections_temp != "all_options":
+                concurrent_connections_value = self.convert_string_to_tuple(
+                    concurrent_connections_temp)
+                worker_connection = concurrent_connections_temp[0]
+                worker_processes = concurrent_connections_temp[1]
                 i_filter_kwargs['worker_connection__exact'] = \
                         worker_connection
                 i_filter_kwargs['worker_processes__exact'] = \
