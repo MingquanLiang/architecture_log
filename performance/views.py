@@ -400,6 +400,12 @@ class SearchResultView(generic.TemplateView):
             for i in post_app_choice_field_list:
                 field_value = all_post_data.get(i)
                 if field_value != "all_options":
+                    # FIXME: store value is a bool type but 
+                    # get string when get from user input
+                    if field_value == "False":
+                        field_value = False
+                    elif field_value == "True":
+                        field_value = True
                     i_filter_kwargs['{0}__{1}'.format(i, "exact")] = \
                         field_value
                     further_search_item_value_map[i] = field_value
@@ -413,8 +419,8 @@ class SearchResultView(generic.TemplateView):
             if concurrent_connections_temp != "all_options":
                 concurrent_connections_value = self.convert_string_to_tuple(
                     concurrent_connections_temp)
-                worker_connection = concurrent_connections_temp[0]
-                worker_processes = concurrent_connections_temp[1]
+                worker_connection = concurrent_connections_value[0]
+                worker_processes = concurrent_connections_value[1]
                 i_filter_kwargs['worker_connection__exact'] = \
                         worker_connection
                 i_filter_kwargs['worker_processes__exact'] = \
