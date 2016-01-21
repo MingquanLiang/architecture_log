@@ -42,37 +42,39 @@ class ApplicationBaseInformation(object):
         self.app_infor['datacaching'] = {
                 'information_module': dc_i,
                 'machine_module': dc_m,
-                'range_fields': ('data_scale', 'number_works',
-                    'number_connections', 'number_threads'),
-                'choice_fields': ('network_bandwidth',),
+                'range_fields': None,
+                'choice_fields': ('data_scale', 'number_works',
+                    'number_connections', 'number_threads',
+                    'network_bandwidth_datacaching'),
                 'result_fields': ('result_max_rps', ),
                 'result_alias_fields' : ('data_scale', 'number_works',
                     'number_connections', 'number_threads', 
-                    'network_bandwidth', 'reference_link', ),
+                    'network_bandwidth_datacaching', 'reference_link', ),
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
-                'range_fields': ('thread_number', ),
-                'choice_fields': ('node', 'phycpu', 'stride_size'),
+                'range_fields': None,
+                'choice_fields': ('node', 'phycpu', 'stride_size',
+                    'thread_number_lmbench'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('thread_number', 'node', 'phycpu',
+                'result_alias_fields' : ('thread_number_lmbench', 'node', 'phycpu',
                     'stride_size', 'reference_link', ),
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
                 'range_fields': None,
-                'choice_fields': ('thread_number', ),
+                'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('thread_number', 'result_time', 
-                    'reference_link', ),
+                'result_alias_fields' : ('thread_number_parsec',
+                    'app_name_parsec', 'input_set', 'reference_link', ),
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
-                'range_fields': ('dataset_size', ),
-                'choice_fields': ('app_name', 'pthread_num'),
+                'range_fields': None,
+                'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
                 'result_fields': ('result_run_time', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors'),
@@ -80,10 +82,11 @@ class ApplicationBaseInformation(object):
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
                 'machine_module': st_m,
-                'range_fields': ('data_size', 'parition_size', 'workers'),
-                'choice_fields': ('processor_number', ),
+                'range_fields': ('data_size',),
+                'choice_fields': ('processor_number', 'partition_size',
+                    'workers'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('data_size', 'parition_size',
+                'result_alias_fields' : ('data_size', 'partition_size',
                     'workers', 'processor_number', 'reference_link', ),
                 }
         self.app_infor['speccpu'] = {
@@ -100,33 +103,36 @@ class ApplicationBaseInformation(object):
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
                 'range_fields': None,
-                'choice_fields': ('jvm_parameter','jvm_instances','warehouses'),
+                'choice_fields': ('jvm_parameter_specjbb','jvm_instances',
+                    'warehouses'),
                 'result_fields': ('result_bops', ),
-                'result_alias_fields' : ('jvm_parameter','jvm_instances', 
-                    'warehouses', 'reference_link', ),
+                'result_alias_fields' : ('jvm_parameter_specjbb',
+                    'jvm_instances', 'warehouses', 'reference_link', ),
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
                 'range_fields': None,
-                'choice_fields': ('jvm_parameter', 'specjvm_parameter'),
+                'choice_fields': ('jvm_parameter_specjvm', 
+                    'specjvm_parameter'),
                 'result_fields': ('result_bops', ),
-                'result_alias_fields' : ('jvm_parameter', 'specjvm_parameter',
-                    'reference_link', ),
+                'result_alias_fields' : ('jvm_parameter_specjvm', 
+                    'specjvm_parameter', 'reference_link', ),
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
                 'range_fields': None,
-                'choice_fields': ('problem_size', ),
+                'choice_fields': ('problem_size', 'app_name_splash'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('problem_size', 'reference_link', ),
+                'result_alias_fields' : ('problem_size', 'app_name_splash', 
+                    'reference_link', ),
                 }
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
                 'machine_module': tpc_m,
-                'range_fields': ('warehouses', 'terminals'),
-                'choice_fields': None,
+                'range_fields': None,
+                'choice_fields': ('warehouses', 'terminals'),
                 'result_fields': ('result_tpmc', ),
                 'result_alias_fields' : ('warehouses', 'terminals', 
                     'reference_link', ),
@@ -138,13 +144,13 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('warm_up', 'con_users', 'pm_static',
                     'pm_max_connections', 'sql_max_connections',
                     #'worker_processes', 'worker_connection',
-                    'network_bandwidth', ),
+                    'network_bandwidth_webserving', ),
                 'result_fields': ('result_ops', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors', 'warm_up', 'con_users',
                     'pm_static', 'pm_max_connections', 'sql_max_connections',
                     'worker_processes', 'worker_connection',
-                    'network_bandwidth', ),
+                    'network_bandwidth_webserving', ),
                 }
 
 
@@ -243,7 +249,8 @@ class SearchIndexView(generic.TemplateView):
         get the value range by looking for the value of field_name 
         in the module. such as: 
         app_data['data_scale'] = [(10, 20), (21, 30), (31, 40)]
-        app_data['network_bandwidth'] = [1000, 2000, 4000, 5000, 8000,10000]
+        app_data['network_bandwidth_datacaching'] = [1000, 2000, 4000, 
+                5000, 8000,10000]
         """
         app_data = {}
         if module_name.objects.exists():
@@ -309,6 +316,29 @@ class SearchResultView(generic.TemplateView):
         min_one = float(string_list[0])
         max_one = float(string_list[1])
         return (min_one, max_one)
+
+    def judge_webserving_machine(self, every_group, frontend_half_l3,
+            fronend_arch, backend_half_l3):
+        init_dict = {'frontend': (None, None), 'backend': None}
+        for record in every_group:
+            machine_side = record.machine_side
+            half_l3 = record.half_l3
+            arch = record.architecture_type
+            if machine_side == 'frontend':
+                if frontend_half_l3 == "all_options":
+                    init_dict['frontend'] = (frontend_half_l3, arch)
+                else:
+                    init_dict['frontend'] = (half_l3, arch)
+            elif machine_side == 'backend':
+                if backend_half_l3 == "all_options":
+                    init_dict['backend'] = backend_half_l3
+                else:
+                    init_dict['backend'] = half_l3
+        if init_dict['frontend'] == (frontend_half_l3, fronend_arch) \
+                and init_dict['backend'] == backend_half_l3:
+            return True
+        else:
+            return False
 
     def filter_needed_id(self, module_info, field_value_map, flag, 
             filter_field='id'):
@@ -441,34 +471,44 @@ class SearchResultView(generic.TemplateView):
 
         # get needed record from XXXMachine module
         m_filter_kwargs = {}
-        m_filter_kwargs['architecture_type__exact'] = post_architecture
         if post_application == 'webserving':
-            frontend_half_l3 = all_post_data.get('frontend_half_l3')
-            backend_half_l3 = all_post_data.get('backend_half_l3')
-            if frontend_half_l3 != "all_options":
-                m_filter_kwargs['machine_side__exact'] = 'frontend'
-                m_filter_kwargs['half_l3__exact'] = True if frontend_half_l3 \
-                        == "True" else False
+            # XXX: must convert string to bool here for frontend/backend
+            frontend_half_l3_temp = all_post_data.get('frontend_half_l3')
+            backend_half_l3_temp = all_post_data.get('backend_half_l3')
+            if frontend_half_l3_temp != "all_options":
                 further_search_item_value_map['frontend_half_l3'] = \
-                        frontend_half_l3
+                        frontend_half_l3_temp
+                frontend_half_l3 = True if frontend_half_l3_temp == 'True' \
+                        else False
             else:
+                frontend_half_l3 = frontend_half_l3_temp
                 further_search_item_value_map['frontend_half_l3'] = \
                         "ALL"
                 graph_x_field_list.append('frontend_half_l3')
-            if backend_half_l3 != "all_options":
-                m_filter_kwargs['machine_side__exact'] = 'backend'
-                m_filter_kwargs['half_l3__exact'] = True if backend_half_l3 \
-                        == "True" else False
+            if backend_half_l3_temp != "all_options":
                 further_search_item_value_map['backend_half_l3'] = \
-                        backend_half_l3
+                        backend_half_l3_temp
+                backend_half_l3 = True if backend_half_l3_temp == 'True' \
+                        else False
             else:
+                backend_half_l3 = backend_half_l3_temp
                 further_search_item_value_map['backend_half_l3'] = \
                         "ALL"
                 graph_x_field_list.append('backend_half_l3')
-        m_module_needed_queryset = post_app_m_module.objects.filter(
-                **m_filter_kwargs)
-        m_id_list = [ record.app_information_id for record in
-                m_module_needed_queryset ]
+            ws_m_id_list = {i.app_information_id for i in ws_m.objects.all()}
+            m_id_list = []
+            for id_value in ws_m_id_list:
+                every_group = [i for i in ws_m.objects.filter(
+                        app_information_id__exact=id_value)]
+                if self.judge_webserving_machine(every_group, frontend_half_l3,
+                        post_architecture, backend_half_l3):
+                    m_id_list.append(id_value)
+        else:
+            m_filter_kwargs['architecture_type__exact'] = post_architecture
+            m_module_needed_queryset = post_app_m_module.objects.filter(
+                    **m_filter_kwargs)
+            m_id_list = [record.app_information_id for record in
+                    m_module_needed_queryset]
         # merge same value because ForeignKey in .models
         id_list = self.get_same_element_in_list(i_id_list, m_id_list)
         # get all chosen options of user and extract filter condition - end
