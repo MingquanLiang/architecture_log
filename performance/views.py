@@ -44,36 +44,37 @@ class ApplicationBaseInformation(object):
                 'machine_module': dc_m,
                 'range_fields': None,
                 'choice_fields': ('data_scale', 'number_works',
-                    'number_connections', 'number_threads', 'network_bandwidth'),
+                    'number_connections', 'number_threads',
+                    'network_bandwidth_datacaching'),
                 'result_fields': ('result_max_rps', ),
                 'result_alias_fields' : ('data_scale', 'number_works',
                     'number_connections', 'number_threads', 
-                    'network_bandwidth', 'reference_link', ),
+                    'network_bandwidth_datacaching', 'reference_link', ),
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
                 'range_fields': None,
                 'choice_fields': ('node', 'phycpu', 'stride_size',
-                    'thread_number'),
+                    'thread_number_lmbench'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('thread_number', 'node', 'phycpu',
+                'result_alias_fields' : ('thread_number_lmbench', 'node', 'phycpu',
                     'stride_size', 'reference_link', ),
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
                 'range_fields': None,
-                'choice_fields': ('thread_number', 'app_name', 'input_set'),
+                'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('thread_number', 'app_name',
-                    'input_set', 'reference_link', ),
+                'result_alias_fields' : ('thread_number_parsec',
+                    'app_name_parsec', 'input_set', 'reference_link', ),
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
                 'range_fields': None,
-                'choice_fields': ('app_name', 'pthread_num', 'dataset_size'),
+                'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
                 'result_fields': ('result_run_time', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors'),
@@ -82,10 +83,10 @@ class ApplicationBaseInformation(object):
                 'information_module': st_i,
                 'machine_module': st_m,
                 'range_fields': ('data_size',),
-                'choice_fields': ('processor_number', 'parition_size',
+                'choice_fields': ('processor_number', 'partition_size',
                     'workers'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('data_size', 'parition_size',
+                'result_alias_fields' : ('data_size', 'partition_size',
                     'workers', 'processor_number', 'reference_link', ),
                 }
         self.app_infor['speccpu'] = {
@@ -102,27 +103,29 @@ class ApplicationBaseInformation(object):
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
                 'range_fields': None,
-                'choice_fields': ('jvm_parameter','jvm_instances','warehouses'),
+                'choice_fields': ('jvm_parameter_specjbb','jvm_instances',
+                    'warehouses'),
                 'result_fields': ('result_bops', ),
-                'result_alias_fields' : ('jvm_parameter','jvm_instances', 
-                    'warehouses', 'reference_link', ),
+                'result_alias_fields' : ('jvm_parameter_specjbb',
+                    'jvm_instances', 'warehouses', 'reference_link', ),
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
                 'range_fields': None,
-                'choice_fields': ('jvm_parameter', 'specjvm_parameter'),
+                'choice_fields': ('jvm_parameter_specjvm', 
+                    'specjvm_parameter'),
                 'result_fields': ('result_bops', ),
-                'result_alias_fields' : ('jvm_parameter', 'specjvm_parameter',
-                    'reference_link', ),
+                'result_alias_fields' : ('jvm_parameter_specjvm', 
+                    'specjvm_parameter', 'reference_link', ),
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
                 'range_fields': None,
-                'choice_fields': ('problem_size', 'app_name'),
+                'choice_fields': ('problem_size', 'app_name_splash'),
                 'result_fields': ('result_time', ),
-                'result_alias_fields' : ('problem_size', 'app_name', 
+                'result_alias_fields' : ('problem_size', 'app_name_splash', 
                     'reference_link', ),
                 }
         self.app_infor['tpcc'] = {
@@ -141,13 +144,13 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('warm_up', 'con_users', 'pm_static',
                     'pm_max_connections', 'sql_max_connections',
                     #'worker_processes', 'worker_connection',
-                    'network_bandwidth', ),
+                    'network_bandwidth_webserving', ),
                 'result_fields': ('result_ops', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors', 'warm_up', 'con_users',
                     'pm_static', 'pm_max_connections', 'sql_max_connections',
                     'worker_processes', 'worker_connection',
-                    'network_bandwidth', ),
+                    'network_bandwidth_webserving', ),
                 }
 
 
@@ -246,7 +249,8 @@ class SearchIndexView(generic.TemplateView):
         get the value range by looking for the value of field_name 
         in the module. such as: 
         app_data['data_scale'] = [(10, 20), (21, 30), (31, 40)]
-        app_data['network_bandwidth'] = [1000, 2000, 4000, 5000, 8000,10000]
+        app_data['network_bandwidth_datacaching'] = [1000, 2000, 4000, 
+                5000, 8000,10000]
         """
         app_data = {}
         if module_name.objects.exists():
