@@ -155,15 +155,15 @@ class DataCachingInformation(ProjectInformation, Bottleneck):
     number_works = models.PositiveSmallIntegerField('Work Number')
     number_connections = models.PositiveSmallIntegerField('Connection Number')
     number_threads = models.PositiveSmallIntegerField('Thread Number')
-    network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
-            '(Mbps)')
+    network_bandwidth_datacaching = models.PositiveSmallIntegerField(
+            'Network Bandwidth (Mbps)')
 
     def __str__(self):
         return "{0}: Max RPS={1} | Data Scale={2} | Works={3} | "\
     "Connections={4} | Threads={5} | Network Bandwidth={6}".format(
             self.test_application, self.result_max_rps, self.data_scale,
             self.number_works,self.number_connections, self.number_threads,
-            self.network_bandwidth)
+            self.network_bandwidth_datacaching)
 
     class Meta:
         abstract = False
@@ -193,9 +193,9 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
             default=timezone.now)
 
     result_time = models.FloatField('Result - Time')
-    app_name = models.CharField('app name', max_length=256, default='bw_mem')
+    app_name_lmbench = models.CharField('app name', max_length=256, default='bw_mem')
     problem_size = models.CharField('Problem Size', max_length=256)
-    thread_number = models.PositiveSmallIntegerField('Thread Number')
+    thread_number_lmbench = models.CharField('Thread Number', max_length=256)
     node = models.CharField('Node', max_length=256)
     phycpu = models.CharField('Physical CPU', max_length=256)
     stride_size = models.PositiveIntegerField('Stride Size (Byte)')
@@ -203,8 +203,8 @@ class LmbenchInformation(ProjectInformation, Bottleneck):
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Problem Size={3} | Thread'\
     ' Number={4} | Node={5} | Physical CPU={6} | Stride Size={7}'.format(
-            self.test_application, self.result_time, self.app_name, 
-            self.problem_size, self.thread_number, self.node, self.phycpu,
+            self.test_application, self.result_time, self.app_name_lmbench, 
+            self.problem_size, self.thread_number_lmbench, self.node, self.phycpu,
             self.stride_size)
 
     class Meta:
@@ -235,15 +235,16 @@ class ParsecInformation(ProjectInformation, Bottleneck):
             default=timezone.now)
 
     result_time = models.FloatField('Result - Time(s)')
-    app_name = models.CharField('app name', max_length=256)
+    app_name_parsec = models.CharField('app name', max_length=256)
     input_set = models.CharField('Input Set', max_length=256)
-    thread_number = models.PositiveSmallIntegerField('Thread Number')
+    thread_number_parsec = models.PositiveSmallIntegerField('Thread Number')
     smt_number = models.PositiveSmallIntegerField('SMT')
 
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Input Set={3} | Threads={4} |'\
-    ' SMT={5}'.format(self.test_application, self.result_time, self.app_name,
-            self.input_set, self.thread_number, self.smt_number)
+    ' SMT={5}'.format(self.test_application, self.result_time,
+            self.app_name_parsec, self.input_set, self.thread_number_parsec, 
+            self.smt_number)
 
     class Meta:
         abstract = False
@@ -276,7 +277,7 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
     result_passed = models.BooleanField('Result - PASSED')
     result_warnings = models.BooleanField('Result - WARNINGS')
     result_errors = models.BooleanField('Result - ERRORS')
-    app_name = models.CharField('app name', max_length=256)
+    app_name_siriussuit = models.CharField('app name', max_length=256)
     pthread_num = models.PositiveSmallIntegerField('Pthread Number')
     dataset_size = models.FloatField('Dataset Size (GB)')
 
@@ -284,7 +285,7 @@ class SiriusSuitInformation(ProjectInformation, Bottleneck):
         return '{0}: Run Time{1} | PASSED={2} | WARNINGS={3} | ERRORS={4} | '\
     'app name={5} | Pthread={6} | Dataset={7} GB'.format(
             self.test_application, self.result_run_time, self.result_passed,
-            self.result_warnings, self.result_errors, self.app_name,
+            self.result_warnings, self.result_errors, self.app_name_siriussuit,
             self.pthread_num, self.dataset_size)
 
     class Meta:
@@ -316,14 +317,14 @@ class SparkTerasortInformation(ProjectInformation, Bottleneck):
 
     result_time = models.FloatField('Result - Time(s)')
     data_size = models.FloatField('Data Size (GB)')
-    parition_size = models.PositiveSmallIntegerField('Partition Size')
+    partition_size = models.PositiveSmallIntegerField('Partition Size')
     processor_number = models.PositiveSmallIntegerField('Processor Number')
     workers = models.PositiveIntegerField('Workers')
 
     def __str__(self):
         return '{0}: Time(s)={1} | Data Size={2} | Partition Size={3} | '\
     'Processor Number={4} | Works={5}'.format(self.test_application,
-            self.result_time, self.data_size, self.parition_size,
+            self.result_time, self.data_size, self.partition_size,
             self.processor_number, self.workers)
 
     class Meta:
@@ -401,17 +402,17 @@ class SpecjbbInformation(ProjectInformation, Bottleneck):
     # the jbb_attachment is a part of result in Specjbb
     jbb_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
-    app_name = models.CharField('app name', max_length=256)
+    app_name_specjbb = models.CharField('app name', max_length=256)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
-    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
+    jvm_parameter_specjbb = models.CharField('JVM Parameter', max_length=512)
     jvm_instances = models.PositiveSmallIntegerField('JVM Instances')
     warehouses = models.PositiveIntegerField('WAREHOUSES')
 
     def __str__(self):
         return '{0}: bops={1} | app name={2} | JVM Parameter={3} | '\
     'Processor(s)={4} | JVM Instances={5} | WAREHOUSES={6}'.format(
-            self.test_application, self.result_bops, self.app_name, 
-            self.jvm_parameter, self.processor_number,
+            self.test_application, self.result_bops, self.app_name_specjbb, 
+            self.jvm_parameter_specjbb, self.processor_number,
             self.jvm_instances, self.warehouses)
 
     class Meta:
@@ -444,15 +445,17 @@ class SpecjvmInformation(ProjectInformation, Bottleneck):
     result_bops = models.FloatField('Result - bops')
     jvm_attachment = models.FileField(upload_to = '%Y-%m-%d/%H-%M-%S',
             blank=True)
-    app_name = models.CharField('app name', max_length=256)
-    jvm_parameter = models.CharField('JVM Parameter', max_length=512)
+    app_name_specjvm = models.CharField('app name', max_length=256)
+    jvm_parameter_specjvm = models.CharField('JVM Parameter', max_length=512)
     specjvm_parameter = models.CharField('Spec JVM Parameter', max_length=512)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
 
     def __str__(self):
         return '{0}: bops={1} | app name={2} | JVM Parameter={3} | '\
-    'Spec JVM Parameter={4} | processor_number={5}'.format(self.test_application, self.result_bops,
-            self.app_name, self.jvm_parameter, self.specjvm_parameter, self.processor_number)
+    'Spec JVM Parameter={4} | processor_number={5}'.format(
+            self.test_application, self.result_bops, self.app_name_specjvm,
+            self.jvm_parameter_specjvm, self.specjvm_parameter, 
+            self.processor_number)
 
     class Meta:
         abstract = False
@@ -482,14 +485,14 @@ class SplashInformation(ProjectInformation, Bottleneck):
             default=timezone.now)
 
     result_time = models.FloatField('Result - Time(us)')
-    app_name = models.CharField('app name', max_length=256)
+    app_name_splash = models.CharField('app name', max_length=256)
     problem_size = models.CharField('Problem Size', max_length=256)
     processor_number = models.PositiveSmallIntegerField('Processor Number')
 
     def __str__(self):
         return '{0}: Time={1} | app name={2} | Problem Size={3} | '\
     'Processor={4}'.format(self.test_application, self.result_time,
-            self.app_name, self.problem_size, self.processor_number)
+            self.app_name_splash, self.problem_size, self.processor_number)
 
     class Meta:
         abstract = False
@@ -522,14 +525,14 @@ class TpccInformation(ProjectInformation, Bottleneck):
     warehouses = models.PositiveIntegerField('WAREHOUSES')
     terminals = models.PositiveSmallIntegerField('TERMINALS')
     run_time = models.FloatField('RUN_TIME')
-    network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
-            '(Mbps)')
+    network_bandwidth_tpcc = models.PositiveSmallIntegerField(
+            'Network Bandwidth (Mbps)')
 
     def __str__(self):
         return '{0}: tpmC={1} | WAREHOUSES={2} | TERMINALS={3} | Run '\
         'Time={4} | Network Bandwidth={5}'.format(self.test_application,
         self.result_tpmc, self.warehouses, self.terminals, self.run_time,
-            self.network_bandwidth)
+            self.network_bandwidth_tpcc)
 
     class Meta:
         abstract = False
@@ -565,13 +568,14 @@ class WebServingInformation(ProjectInformation, Bottleneck):
     warm_up = models.PositiveSmallIntegerField('Warm Up')
     con_users = models.PositiveSmallIntegerField('CON Users')
     pm_static = models.BooleanField('PM Staic')
-    pm_max_connections = models.PositiveSmallIntegerField('PM Max Connections')
+    pm_max_connections = models.PositiveSmallIntegerField(
+            'PM Max Connections', default=0)
     sql_max_connections = models.PositiveSmallIntegerField(
             'SQL Max Connections')
     worker_processes = models.PositiveSmallIntegerField('Worker Processes')
     worker_connection = models.PositiveSmallIntegerField('Worker Connection')
-    network_bandwidth = models.PositiveSmallIntegerField('Network Bandwidth '
-            '(Mbps)')
+    network_bandwidth_webserving = models.PositiveSmallIntegerField(
+            'Network Bandwidth (Mbps)')
 
     def __str__(self):
         return '{0}: OPS={1} | PASSED={2} | WARNINGS={3} | ERRORS={4} | Warm'\
@@ -582,7 +586,7 @@ class WebServingInformation(ProjectInformation, Bottleneck):
             self.warm_up, self.con_users, self.pm_static,
             self.pm_max_connections, self.sql_max_connections,
             self.worker_processes, self.worker_connection,
-            self.network_bandwidth)
+            self.network_bandwidth_webserving)
 
     class Meta:
         abstract = False
