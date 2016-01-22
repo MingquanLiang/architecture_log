@@ -58,7 +58,7 @@ class DataCachingAdmin(admin.ModelAdmin):
                 ),
             ('Configration', {
                 'fields': (('data_scale','number_works','number_connections',
-                    'number_threads', 'network_bandwidth'),)
+                    'number_threads', 'network_bandwidth_datacaching'),)
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -88,7 +88,8 @@ class LmbenchAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','problem_size', 'thread_number'),
+                'fields': (('app_name_lmbench','problem_size',
+                    'thread_number_lmbench'),
                     ('node', 'phycpu', 'stride_size'))
                 }
                 ),
@@ -119,7 +120,7 @@ class ParsecAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','thread_number'), ('input_set',
+                'fields': (('app_name_parsec','thread_number_parsec'), ('input_set',
                 'smt_number'),)
                 }
                 ),
@@ -163,7 +164,7 @@ class SiriusSuitAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','pthread_num','dataset_size'),)
+                'fields': (('app_name_siriussuit','pthread_num','dataset_size'),)
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -194,7 +195,7 @@ class SparkTerasortAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('data_size','parition_size','processor_number',
+                'fields': (('data_size','partition_size','processor_number',
                     'workers'),)
                 }
                 ),
@@ -271,7 +272,7 @@ class SpecjbbAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name', 'jvm_parameter'), ('processor_number',
+                'fields': (('app_name_specjbb', 'jvm_parameter_specjbb'), ('processor_number',
                     'jvm_instances', 'warehouses'),)
                 }
                 ),
@@ -304,8 +305,8 @@ class SpecjvmAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name', 'processor_number'),
-                    ('jvm_parameter', 'specjvm_parameter'))
+                'fields': (('app_name_specjvm', 'processor_number'),
+                    ('jvm_parameter_specjvm', 'specjvm_parameter'))
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -335,7 +336,7 @@ class SplashAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('app_name','problem_size','processor_number'),)
+                'fields': (('app_name_splash','problem_size','processor_number'),)
                 }
                 ),
             ('Bottleneck (click for "yes")', {
@@ -366,7 +367,7 @@ class TpccAdmin(admin.ModelAdmin):
                 }
                 ),
             ('Configration', {
-                'fields': (('warehouses','terminals','network_bandwidth',
+                'fields': (('warehouses','terminals','network_bandwidth_tpcc',
                     'run_time',),)
                 }
                 ),
@@ -412,7 +413,7 @@ class WebServingAdmin(admin.ModelAdmin):
                 'fields': (('warm_up', 'con_users', 'pm_static',
                     'pm_max_connections'), ('sql_max_connections',
                     'worker_connection','worker_processes',
-                    'network_bandwidth'),)
+                    'network_bandwidth_webserving'),)
                 }
                 ),
             ('Bottleneck (click for "yes")', {
