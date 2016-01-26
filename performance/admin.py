@@ -214,10 +214,16 @@ class SpecCPUMachineInline(BaseMachineInline):
          ('byte_order', 'threads_per_core', 'cores_per_socket',
              'socket_number'))
          })
+    new_cache_information = ('Cache & Memory', {'fields': 
+        (('l1_instruction','l1_data','l2', 'memory'),
+         ('l3', 'l4', 'half_l3_speccpu', 'existing_l4_speccpu'),)
+        })
     fieldsets = []
     for i in BaseMachineInline.fieldsets:
         if i[0] == 'CPU Information':
             fieldsets.append(new_cpu_information)
+        elif i[0] == 'Cache & Memory':
+            fieldsets.append(new_cache_information)
         else:
             fieldsets.append(i)
 
