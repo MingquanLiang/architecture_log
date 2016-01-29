@@ -39,9 +39,13 @@ class ApplicationBaseInformation(object):
                 'tpcc', 'webserving',
                 ]
         self.app_infor = {}
+        # TODO: I will add 'choice_fields_mach' for every application to
+        # handle the extra fields from machine_module
         self.app_infor['datacaching'] = {
                 'information_module': dc_i,
                 'machine_module': dc_m,
+                #machine_fields only fits for application who owns one machine
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('data_scale', 'number_works',
                     'number_connections', 'number_threads',
@@ -54,6 +58,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('node', 'phycpu', 'stride_size',
                     'thread_number_lmbench'),
@@ -64,6 +69,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
                 'result_fields': ('result_time', ),
@@ -73,6 +79,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
                 'result_fields': ('result_run_time', ),
@@ -82,6 +89,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
                 'machine_module': st_m,
+                'machine_fields': None,
                 'range_fields': ('data_size',),
                 'choice_fields': ('processor_number', 'partition_size',
                     'workers'),
@@ -92,6 +100,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
                 'machine_module': scpu_m,
+                'machine_fields': ('half_l3_speccpu', 'existing_l4_speccpu'),
                 'range_fields': None,
                 'choice_fields': ('copies', ),
                 # TODO: more than one result fields.
@@ -102,6 +111,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('jvm_parameter_specjbb','jvm_instances',
                     'warehouses'),
@@ -112,6 +122,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('jvm_parameter_specjvm', 
                     'specjvm_parameter'),
@@ -122,6 +133,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('problem_size', 'app_name_splash'),
                 'result_fields': ('result_time', ),
@@ -131,6 +143,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
                 'machine_module': tpc_m,
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('warehouses', 'terminals'),
                 'result_fields': ('result_tpmc', ),
@@ -140,6 +153,8 @@ class ApplicationBaseInformation(object):
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
                 'machine_module': ws_m,
+                #machine_fields only fits for application who owns one machine
+                'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('warm_up', 'con_users', 'pm_static',
                     'pm_max_connections', 'sql_max_connections',
@@ -174,17 +189,32 @@ class SearchIndexView(generic.TemplateView):
         applications = apps_base_infors_object.applications
         apps_base_infors = apps_base_infors_object.app_infor
 
-        app_infors = {}
+        app_infors_base = {}
         for app in applications:
-            app_infors[app] = self.get_models_information(
+            app_infors_base[app] = self.get_models_information(
                     apps_base_infors[app]['information_module'],
                     apps_base_infors[app]['range_fields'],
                     apps_base_infors[app]['choice_fields'],
                     )
-        app_infors_webserving_base = app_infors['webserving']
+        app_infors_webserving_base = app_infors_base['webserving']
         app_infors_webserving_extra = self.get_webserving_information()
-        app_infors['webserving'] = dict(app_infors_webserving_base,
+        app_infors_base['webserving'] = dict(app_infors_webserving_base,
                 **app_infors_webserving_extra)
+
+        app_infors_mach = {}
+        for app in applications:
+            app_infors_mach[app] = self.get_models_information(
+                    apps_base_infors[app]['machine_module'],
+                    choice_field_list = apps_base_infors[app]['machine_fields']
+                    )
+
+        app_infors = {}
+        for app in applications:
+            if len(app_infors_mach) == 0:
+                app_infors[app] = app_infors_base[app]
+            else:
+                app_infors[app] = dict(app_infors_base[app],
+                        **app_infors_mach[app])
 
         # render the context to template system
         ctx['project_names'] = project_names
@@ -395,7 +425,8 @@ class SearchResultView(generic.TemplateView):
                 'range_fields']
         post_app_choice_field_list = self.apps_base_infors[post_application][
                 'choice_fields']
-
+        post_app_machine_field_list = self.apps_base_infors[post_application][
+                'machine_fields']
 
         # get all chosen options of user and extract filter condition - start
         base_search_item_value_map = {}
@@ -445,6 +476,10 @@ class SearchResultView(generic.TemplateView):
                 else:
                     further_search_item_value_map[i] = "ALL"
                     graph_x_field_list.append(i)
+
+        if post_app_machine_field_list is not None:
+            for i in post_app_machine_field_list:
+                field_value = all_post_data.get(i)
 
         if post_application == 'webserving':
             concurrent_connections_temp = all_post_data.get(
@@ -505,6 +540,20 @@ class SearchResultView(generic.TemplateView):
                     m_id_list.append(id_value)
         else:
             m_filter_kwargs['architecture_type__exact'] = post_architecture
+            if post_app_machine_field_list is not None:
+                for i in post_app_machine_field_list:
+                    field_value = all_post_data.get(i)
+                    if field_value != "all_options":
+                        if field_value == "False":
+                            field_value = False
+                        elif field_value == "True":
+                            field_value = True
+                        m_filter_kwargs['{0}__{1}'.format(i, "exact")] = \
+                            field_value
+                        further_search_item_value_map[i] = field_value
+                    else:
+                        further_search_item_value_map[i] = "ALL"
+                        graph_x_field_list.append(i)
             m_module_needed_queryset = post_app_m_module.objects.filter(
                     **m_filter_kwargs)
             m_id_list = [record.app_information_id for record in
