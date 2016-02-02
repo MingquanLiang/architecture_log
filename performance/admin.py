@@ -1,4 +1,6 @@
+import copy
 from django.contrib import admin
+from django.contrib import messages
 
 from .models import DataCachingInformation, DataCachingMachine
 from .models import LmbenchInformation, LmbenchMachine
@@ -11,6 +13,25 @@ from .models import SpecjvmInformation, SpecjvmMachine
 from .models import SplashInformation, SplashMachine
 from .models import TpccInformation, TpccMachine
 from .models import WebServingInformation, WebServingMachine
+
+
+def duplicate_one_record(modeladmin, request, queryset):
+    if queryset.count() != 1:
+        messages.error(request, 'NO more than one record to duplicate')
+    else:
+        relate_model_name = '{0}_set'.format(
+                modeladmin.inlines[0].model.__name__.lower())
+        target_record = copy.deepcopy(queryset[0])
+        #relation_record = copy.deepcopy(target_record.lmbenchmachine_set.all()[0])
+        relation_record = copy.deepcopy(target_record.__getattribute__(
+            relate_model_name).all()[0])
+        target_record.id = None
+        target_record.save()
+        relation_record.app_information = target_record
+        relation_record.id = None
+        relation_record.app_information_id = target_record.id
+        relation_record.save()
+duplicate_one_record.short_description = "duplicate one selected record"
 
 
 class BaseMachineInline(admin.StackedInline):
@@ -99,6 +120,7 @@ class LmbenchAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -130,6 +152,7 @@ class ParsecAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -173,6 +196,7 @@ class SiriusSuitAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -205,6 +229,7 @@ class SparkTerasortAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -255,6 +280,7 @@ class SpecCPUAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -288,6 +314,7 @@ class SpecjbbAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -321,6 +348,7 @@ class SpecjvmAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -351,6 +379,7 @@ class SplashAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
