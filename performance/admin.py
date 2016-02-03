@@ -1,4 +1,6 @@
 import copy
+import datetime
+
 from django.contrib import admin
 from django.contrib import messages
 
@@ -25,11 +27,14 @@ def duplicate_one_record(modeladmin, request, queryset):
         #relation_record = copy.deepcopy(target_record.lmbenchmachine_set.all()[0])
         relation_record = copy.deepcopy(target_record.__getattribute__(
             relate_model_name).all()[0])
+        current_time = datetime.datetime.now()
         target_record.id = None
+        target_record.record_result_time = current_time
         target_record.save()
         relation_record.app_information = target_record
         relation_record.id = None
         relation_record.app_information_id = target_record.id
+        relation_record.last_modify_time = current_time
         relation_record.save()
 duplicate_one_record.short_description = "duplicate one selected record"
 
