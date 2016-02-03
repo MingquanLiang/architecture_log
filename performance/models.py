@@ -380,6 +380,8 @@ class SpecCPUMachine(HardwareEnvironment, SoftwareEnvironment):
     cpu_number = models.PositiveSmallIntegerField('CPU(s)')
     app_information = models.ForeignKey(SpecCPUInformation,
             verbose_name='SPEC CPU Information')
+    half_l3_speccpu = models.BooleanField('Half L3 Cache', default=False)
+    existing_l4_speccpu = models.BooleanField('Open L4 Cache', default=True)
 
     def __str__(self):
         return "id={0} | app_information_id={1}".format(
