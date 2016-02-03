@@ -1,4 +1,6 @@
 import copy
+import datetime
+
 from django.contrib import admin
 from django.contrib import messages
 
@@ -22,15 +24,19 @@ def duplicate_one_record(modeladmin, request, queryset):
         relate_model_name = '{0}_set'.format(
                 modeladmin.inlines[0].model.__name__.lower())
         target_record = copy.deepcopy(queryset[0])
-        #relation_record = copy.deepcopy(target_record.lmbenchmachine_set.all()[0])
-        relation_record = copy.deepcopy(target_record.__getattribute__(
-            relate_model_name).all()[0])
+        relation_records = copy.deepcopy(target_record.__getattribute__(
+            relate_model_name).all())
+        current_time = datetime.datetime.now()
         target_record.id = None
+        target_record.record_result_time = current_time
         target_record.save()
-        relation_record.app_information = target_record
-        relation_record.id = None
-        relation_record.app_information_id = target_record.id
-        relation_record.save()
+        target_record_id = target_record.id
+        for relation_record in relation_records:
+            relation_record.app_information = target_record
+            relation_record.id = None
+            relation_record.app_information_id = target_record_id
+            relation_record.last_modify_time = current_time
+            relation_record.save()
 duplicate_one_record.short_description = "duplicate one selected record"
 
 
@@ -88,6 +94,7 @@ class DataCachingAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -412,6 +419,7 @@ class TpccAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
 
 
 #######################################################################
@@ -457,6 +465,8 @@ class WebServingAdmin(admin.ModelAdmin):
                 }
                 ),
             )
+    actions = [duplicate_one_record]
+
 
 # register the models into admin
 admin.site.register(DataCachingInformation, DataCachingAdmin)
