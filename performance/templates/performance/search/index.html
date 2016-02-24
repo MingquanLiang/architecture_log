@@ -54,8 +54,10 @@
         application_name.focus();return false}
       if (validate_required(project_names,"Please Choose Project Name")==false){
         project_names.focus();return false}
+      /*
       if (validate_required(architectures,"Please Choose Architecture")==false){
         architectures.focus();return false}
+      */
       if (validate_required(cpu_types,"Please Choose CPU Type")==false){
         cpu_types.focus();return false}
       if (validate_required(begin_time,"Please Choose Begin Time")==false){
@@ -128,10 +130,12 @@
                 <div class="text"><a align='center'>Project Name</a></div>
                 <div class="clear"></div>
               </th>
+              <!--
               <th scope="col"  class="sortable column-architecture">
                 <div class="text"><a align='center'>Architecture</a></div>
                 <div class="clear"></div>
               </th>
+              -->
               <th scope="col"  class="sortable column-cpu_type">
                 <div class="text"><a align='center'>CPU Type</a></div>
                 <div class="clear"></div>
@@ -170,6 +174,7 @@
                 </select>
               </td>
 
+              <!--
               <td align='center'>
                 <select name="architectures" class="row1">
                   <option value="" disabled="disabled" selected="selected">Please Choose Architecture</option>
@@ -178,6 +183,7 @@
                   {% endfor %}
                 </select>
               </td>
+              -->
 
               <td align='center'>
                 <select name="cpu_types" class="row1">
@@ -186,6 +192,7 @@
                   <!-- option value="{{ cpu_type }}"{% if cpu_type == "CP2"%} selected="selected"{% endif %} -->
                   <option value="{{ cpu_type }}">{{ cpu_type }}</option>
                   {% endfor %}
+                  <option value="all_options">all options</option>
                 </select>
               </td>
 

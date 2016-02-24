@@ -14,6 +14,45 @@
 <script src="{% static 'performance/js/exporting.js' %}"></script>
 <script type="text/javascript">
 $(function () {
+  var seriesOptions = [];
+  var colors = ['#DB843D', '#89A54E', '#3D96AE', '#80699B', '#92A8CD', '#A47D7C', '#B5CA92']
+
+    {% for cpu_type, result_fields_value_list in result_fields_map.items %}
+      seriesOptions[{{forloop.counter0}}] = {
+        name : '{{cpu_type}}',
+        color : colors[{{forloop.counter0}}],
+        marker: {
+          enabled : true,
+          fillColor : 'red'
+        },
+      data : [
+        {% for value_pair in result_fields_value_list %}
+          {
+            x:{{value_pair.0}},
+            text: "{% for alias_name, alias_value in value_pair.2.items %} \
+              {{alias_name}} : {{alias_value}}<br/>\
+            {% endfor %}\
+            ",
+            {% for field_name, field_value in value_pair.1.items %}
+              id: '{{field_name}}',
+              y: {{field_value}}
+            {% endfor %}
+          },
+        {% endfor %}
+      ],
+
+      tooltip: {
+        valueDecimals: 4,
+        // footerFormat: '<span style="font-size: 10px">{point.color}</span><br/>',
+        headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
+        // pointFormat: '<span style="color:{point.color}">\u25cf</span> {point.id}: <b>{point.y}</b><br/>{point.text}'
+        pointFormat: '<span style="color:{point.color}">\u25cf {point.id}: {point.y}</span><br/>{point.text}'
+      }
+
+    };
+    {% endfor %}
+    // end for every series
+
 //      $.getJSON('{% static "performance/data.json" %}', function (data) {
         // Create the chart
         $('#content-main').highcharts('StockChart', {
@@ -41,39 +80,18 @@ $(function () {
               }
             },
 
-            series : [{
-              name : '{{base_search_item_value_map.application}}',
-              // data : data,
-              data : [
-                {% for value_pair in result_fields_value_list %}
-                  {
-                    x:{{value_pair.0}},
-                    text: "{% for alias_name, alias_value in value_pair.2.items %} \
-                      {{alias_name}} : {{alias_value}}<br/>\
-                    {% endfor %}\
-                    ",
-                    {% for field_name, field_value in value_pair.1.items %}
-                      id: '{{field_name}}',
-                      y: {{field_value}}
-                    {% endfor %}
-                  },
-                {% endfor %}
-              ],
-              color : 'red',
-              marker: {
-                enabled : true,
-                fillColor : 'black'
-              },
+            legend: {
+              enabled: true,
+              verticalAlign: 'bottom',
+              borderColor: 'black',
+              /*
+              align: 'right',
+              layout: 'vertical',
+              */
+           },
 
-              tooltip: {
-                valueDecimals: 4,
-                // footerFormat: '<span style="font-size: 10px">{point.color}</span><br/>',
-                headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
-                // pointFormat: '<span style="color:{point.color}">\u25cf</span> {point.id}: <b>{point.y}</b><br/>{point.text}'
-                pointFormat: '<span style="color:{point.color}">\u25cf {point.id}: {point.y}</span><br/>{point.text}'
-              }
+           series: seriesOptions
 
-            }]
         });
  //   });
 

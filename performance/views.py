@@ -53,7 +53,9 @@ class ApplicationBaseInformation(object):
                 'result_fields': ('result_max_rps', ),
                 'result_alias_fields' : ('data_scale', 'number_works',
                     'number_connections', 'number_threads', 
-                    'network_bandwidth_datacaching', 'reference_link', ),
+                    # 'network_bandwidth_datacaching', 'reference_link', ),
+                    'network_bandwidth_datacaching', 'reference_link',
+                    'cpu_type'),
                 }
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
@@ -64,7 +66,7 @@ class ApplicationBaseInformation(object):
                     'thread_number_lmbench'),
                 'result_fields': ('result_time', ),
                 'result_alias_fields' : ('thread_number_lmbench', 'node', 'phycpu',
-                    'stride_size', 'reference_link', ),
+                    'stride_size', 'reference_link', 'cpu_type'),
                 }
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
@@ -74,7 +76,8 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
                 'result_fields': ('result_time', ),
                 'result_alias_fields' : ('thread_number_parsec',
-                    'app_name_parsec', 'input_set', 'reference_link', ),
+                    'app_name_parsec', 'input_set', 'reference_link',
+                    'cpu_type'),
                 }
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
@@ -84,7 +87,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
                 'result_fields': ('result_run_time', ),
                 'result_alias_fields': ('reference_link', 'result_passed', 
-                    'result_warnings', 'result_errors'),
+                    'result_warnings', 'result_errors', 'cpu_type'),
                 }
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
@@ -95,7 +98,8 @@ class ApplicationBaseInformation(object):
                     'partition_size', 'workers', ),
                 'result_fields': ('result_time', ),
                 'result_alias_fields' : ('data_size', 'partition_size',
-                    'workers', 'processor_number', 'reference_link', ),
+                    'workers', 'processor_number', 'reference_link',
+                    'cpu_type'),
                 }
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
@@ -106,7 +110,7 @@ class ApplicationBaseInformation(object):
                 # TODO: more than one result fields.
                 'result_fields': ('result_int_rate_ratio',
                     'result_fp_rate_ratio', ),
-                'result_alias_fields' : ('copies','reference_link', ),
+                'result_alias_fields' : ('copies','reference_link', 'cpu_type'),
                 }
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
@@ -117,7 +121,8 @@ class ApplicationBaseInformation(object):
                     'warehouses'),
                 'result_fields': ('result_bops', ),
                 'result_alias_fields' : ('jvm_parameter_specjbb',
-                    'jvm_instances', 'warehouses', 'reference_link', ),
+                    'jvm_instances', 'warehouses', 'reference_link',
+                    'cpu_type'),
                 }
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
@@ -128,7 +133,7 @@ class ApplicationBaseInformation(object):
                     'specjvm_parameter'),
                 'result_fields': ('result_bops', ),
                 'result_alias_fields' : ('jvm_parameter_specjvm', 
-                    'specjvm_parameter', 'reference_link', ),
+                    'specjvm_parameter', 'reference_link', 'cpu_type'),
                 }
         self.app_infor['splash'] = {
                 'information_module': spl_i,
@@ -138,7 +143,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('problem_size', 'app_name_splash'),
                 'result_fields': ('result_time', ),
                 'result_alias_fields' : ('problem_size', 'app_name_splash', 
-                    'reference_link', ),
+                    'reference_link', 'cpu_type'),
                 }
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
@@ -148,7 +153,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('warehouses', 'terminals'),
                 'result_fields': ('result_tpmc', ),
                 'result_alias_fields' : ('warehouses', 'terminals', 
-                    'reference_link', ),
+                    'reference_link', 'cpu_type'),
                 }
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
@@ -165,7 +170,7 @@ class ApplicationBaseInformation(object):
                     'result_warnings', 'result_errors', 'warm_up', 'con_users',
                     'pm_static', 'pm_max_connections', 'sql_max_connections',
                     'worker_processes', 'worker_connection',
-                    'network_bandwidth_webserving', ),
+                    'network_bandwidth_webserving', 'cpu_type'),
                 }
 
 
@@ -619,7 +624,12 @@ class SearchResultView(generic.TemplateView):
                         result_x_value, {result_fields[0]: result_y_value}, 
                         {i:record.__getattribute__(i) for i 
                             in result_alias_fields},))
-            kwargs['result_fields_value_list'] = result_fields_value_list
+            result_fields_map = {j:[] for j in {i[2]['cpu_type'] for i in
+                result_fields_value_list}}
+            for i in result_fields_value_list:
+                record_cpu_type = i[2]['cpu_type']
+                result_fields_map[record_cpu_type].append(i)
+            kwargs['result_fields_map'] = result_fields_map
         elif post_display_form == "table":
             self.template_name = 'performance/search/result_table.html'
             i_field_name_list = self.get_all_field_name(post_app_i_module,
