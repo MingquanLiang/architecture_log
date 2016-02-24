@@ -24,7 +24,7 @@ from .models import WebServingHardwareEnvironment as ws_h
 
 
 project_names = [ i[0] for i in ProjectInformation.Project_Name_Choices ]
-architectures = [ i[0] for i in HardwareEnvironment.Architecture_Type_Choices ]
+# architectures = [ i[0] for i in HardwareEnvironment.Architecture_Type_Choices ]
 cpu_types = [ i[0] for i in ProjectInformation.CPU_Type_Choices ]
 
 class ApplicationBaseInformation(object):
@@ -218,7 +218,7 @@ class SearchIndexView(generic.TemplateView):
 
         # render the context to template system
         ctx['project_names'] = project_names
-        ctx['architectures'] = architectures
+        # ctx['architectures'] = architectures
         ctx['cpu_types'] = cpu_types
         ctx['applications'] = applications
         ctx['app_infors'] = app_infors
@@ -348,23 +348,28 @@ class SearchResultView(generic.TemplateView):
         return (min_one, max_one)
 
     def judge_webserving_machine(self, every_group, frontend_half_l3,
-            fronend_arch, backend_half_l3):
-        init_dict = {'frontend': (None, None), 'backend': None}
+            # fronend_arch, backend_half_l3):
+            backend_half_l3):
+        #init_dict = {'frontend': (None, None), 'backend': None}
+        init_dict = {'frontend': None, 'backend': None}
         for record in every_group:
             machine_side = record.machine_side
             half_l3 = record.half_l3
-            arch = record.architecture_type
+            # arch = record.architecture_type
             if machine_side == 'frontend':
                 if frontend_half_l3 == "all_options":
-                    init_dict['frontend'] = (frontend_half_l3, arch)
+                    # init_dict['frontend'] = (frontend_half_l3, arch)
+                    init_dict['frontend'] = frontend_half_l3
                 else:
-                    init_dict['frontend'] = (half_l3, arch)
+                    # init_dict['frontend'] = (half_l3, arch)
+                    init_dict['frontend'] = half_l3
             elif machine_side == 'backend':
                 if backend_half_l3 == "all_options":
                     init_dict['backend'] = backend_half_l3
                 else:
                     init_dict['backend'] = half_l3
-        if init_dict['frontend'] == (frontend_half_l3, fronend_arch) \
+        # if init_dict['frontend'] == (frontend_half_l3, fronend_arch) \
+        if init_dict['frontend'] == frontend_half_l3 \
                 and init_dict['backend'] == backend_half_l3:
             return True
         else:
@@ -413,7 +418,7 @@ class SearchResultView(generic.TemplateView):
         post_begin_time = all_post_data.get('begin_time')
         post_end_time = all_post_data.get('end_time')
         post_cpu_type = all_post_data.get('cpu_types')
-        post_architecture = all_post_data.get('architectures')
+        # post_architecture = all_post_data.get('architectures')
         post_application = all_post_data.get('applications')
 
         # further search items related to application name
@@ -433,7 +438,7 @@ class SearchResultView(generic.TemplateView):
         further_search_item_value_map = {}
         base_search_item_value_map['project_name'] = post_project_name
         base_search_item_value_map['cpu_type'] = post_cpu_type
-        base_search_item_value_map['architecture'] = post_architecture
+        # base_search_item_value_map['architecture'] = post_architecture
         base_search_item_value_map['application'] = post_application
         base_search_item_value_map['begin_time'] = post_begin_time
         base_search_item_value_map['end_time'] = post_end_time
@@ -445,7 +450,8 @@ class SearchResultView(generic.TemplateView):
         # get needed record from XXXInformation module
         i_filter_kwargs = {}
         i_filter_kwargs['project_name__exact'] = post_project_name
-        i_filter_kwargs['cpu_type__exact'] = post_cpu_type
+        if post_cpu_type != "all_options":
+            i_filter_kwargs['cpu_type__exact'] = post_cpu_type
         i_filter_kwargs['record_result_time__range'] = (post_begin_time_format,
                 post_end_time_format)
         graph_x_field_list = []
@@ -536,10 +542,11 @@ class SearchResultView(generic.TemplateView):
                 every_group = [i for i in ws_m.objects.filter(
                         app_information_id__exact=id_value)]
                 if self.judge_webserving_machine(every_group, frontend_half_l3,
-                        post_architecture, backend_half_l3):
+                        backend_half_l3):
+                        # post_architecture, backend_half_l3):
                     m_id_list.append(id_value)
         else:
-            m_filter_kwargs['architecture_type__exact'] = post_architecture
+            # m_filter_kwargs['architecture_type__exact'] = post_architecture
             if post_app_machine_field_list is not None:
                 for i in post_app_machine_field_list:
                     field_value = all_post_data.get(i)
