@@ -655,6 +655,9 @@ class SearchResultView(generic.TemplateView):
                         field_name in i_field_name_list]
                 # len(i_record_list) always == 1, but len(m_record_list) >= 1
                 for m_record in m_record_list:
+                    if m_record.machine_side not in ('server_side',
+                            'frontend'):
+                        continue
                     every_record_value = copy.deepcopy(i_record_value)
                     # FIXME:break i_module_info and m_module_info into two parts
                     every_record_value.append('    ')
@@ -662,7 +665,6 @@ class SearchResultView(generic.TemplateView):
                         every_record_value.append(m_record.__getattribute__(
                             field_name))
                     record_value_list.append(every_record_value)
-
             #kwargs['i_module_header'] = i_field_name_list
             #kwargs['m_module_header'] = m_field_name_list
             kwargs['i_module_header'] = i_field_verbose_name_list
