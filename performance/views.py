@@ -139,7 +139,7 @@ class ApplicationBaseInformation(object):
                 'multi_child_app': (True, 'app_name_specjvm'),
                 'machine_fields': None,
                 'range_fields': None,
-                'choice_fields': ('jvm_parameter_specjvm', 
+                'choice_fields': ('app_name_specjvm','jvm_parameter_specjvm', 
                     'specjvm_parameter'),
                 'result_fields': ('result_bops', ),
                 'result_alias_fields' : ('jvm_parameter_specjvm', 
