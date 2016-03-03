@@ -2,6 +2,8 @@ import sys
 import datetime
 import copy
 import math
+import itertools
+import collections
 
 from django.views import generic
 from django.contrib.auth.decorators import login_required
@@ -44,6 +46,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['datacaching'] = {
                 'information_module': dc_i,
                 'machine_module': dc_m,
+                'multi_child_app': (False, ''),
                 #machine_fields only fits for application who owns one machine
                 'machine_fields': None,
                 'range_fields': None,
@@ -60,6 +63,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['lmbench'] = {
                 'information_module': lb_i,
                 'machine_module': lb_m,
+                'multi_child_app': (True, 'app_name_lmbench'),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('node', 'phycpu', 'stride_size',
@@ -71,6 +75,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['parsec'] = {
                 'information_module': pa_i,
                 'machine_module': pa_m,
+                'multi_child_app': (True, 'app_name_parsec'),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
@@ -82,6 +87,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['siriussuit'] = {
                 'information_module': ss_i,
                 'machine_module': ss_m,
+                'multi_child_app': (True, 'app_name_siriussuit'), 
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
@@ -92,6 +98,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['sparkterasort'] = {
                 'information_module': st_i,
                 'machine_module': st_m,
+                'multi_child_app': (False, ''),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('data_size','processor_number', 
@@ -104,6 +111,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['speccpu'] = {
                 'information_module': scpu_i,
                 'machine_module': scpu_m,
+                'multi_child_app': (False, ''),
                 'machine_fields': ('half_l3_speccpu', 'existing_l4_speccpu'),
                 'range_fields': None,
                 'choice_fields': ('copies', ),
@@ -115,6 +123,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['specjbb'] = {
                 'information_module': sjbb_i,
                 'machine_module': sjbb_m,
+                'multi_child_app': (True, 'app_name_specjbb'),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('jvm_parameter_specjbb','jvm_instances',
@@ -127,6 +136,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['specjvm'] = {
                 'information_module': sjvm_i,
                 'machine_module': sjvm_m,
+                'multi_child_app': (True, 'app_name_specjvm'),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('jvm_parameter_specjvm', 
@@ -138,6 +148,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['splash'] = {
                 'information_module': spl_i,
                 'machine_module': spl_m,
+                'multi_child_app': (True, 'app_name_splash'),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('problem_size', 'app_name_splash'),
@@ -148,6 +159,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['tpcc'] = {
                 'information_module': tpc_i,
                 'machine_module': tpc_m,
+                'multi_child_app': (False, ''),
                 'machine_fields': None,
                 'range_fields': None,
                 'choice_fields': ('warehouses', 'terminals'),
@@ -158,6 +170,7 @@ class ApplicationBaseInformation(object):
         self.app_infor['webserving'] = {
                 'information_module': ws_i,
                 'machine_module': ws_m,
+                'multi_child_app': (False, ''),
                 #machine_fields only fits for application who owns one machine
                 'machine_fields': None,
                 'range_fields': None,
@@ -437,6 +450,8 @@ class SearchResultView(generic.TemplateView):
                 'choice_fields']
         post_app_machine_field_list = self.apps_base_infors[post_application][
                 'machine_fields']
+        child_app_attr, child_app_name = self.apps_base_infors[post_application][
+                'multi_child_app']
 
         # get all chosen options of user and extract filter condition - start
         base_search_item_value_map = {}
@@ -606,7 +621,6 @@ class SearchResultView(generic.TemplateView):
                 kwargs['graph_y_field'] = graph_y_field
                 kwargs['result_fields_value_list'] = result_fields_value_list
         elif post_display_form == "figure":
-            self.template_name = 'performance/search/result_figure.html'
             # FIXME: should be get all result fields in production.
             result_fields = self.apps_base_infors[
                     post_application]['result_fields']
@@ -615,21 +629,78 @@ class SearchResultView(generic.TemplateView):
             figure_needed_record_list = [ record for record in
                     i_module_needed_queryset.order_by('record_result_time') 
                     if record.id in id_list ]
-            result_fields_value_list = []
-            for record in figure_needed_record_list:
-                result_x_value = 1000 * int(
-                        record.record_result_time.strftime('%s'))
-                result_y_value = record.__getattribute__(result_fields[0])
-                result_fields_value_list.append((
-                        result_x_value, {result_fields[0]: result_y_value}, 
-                        {i:record.__getattribute__(i) for i 
-                            in result_alias_fields},))
-            result_fields_map = {j:[] for j in {i[2]['cpu_type'] for i in
-                result_fields_value_list}}
-            for i in result_fields_value_list:
-                record_cpu_type = i[2]['cpu_type']
-                result_fields_map[record_cpu_type].append(i)
-            kwargs['result_fields_map'] = result_fields_map
+            if post_cpu_type == 'all_options':
+                self.template_name = 'performance/search/result_all_cpu_type.html'
+                result_fields_map = collections.OrderedDict()
+                cpu_type_set = tuple({i.cpu_type for i in
+                        figure_needed_record_list})
+                if child_app_attr:
+                    app_name_set = tuple({i.__getattribute__(child_app_name)
+                            for i in figure_needed_record_list})
+                    """{
+                        cpu1: [(max_value_app1, 'Hello'), (max_value_app2, 'Hello')], 
+                        cpu2: [(max_value_app1, 'Hello'), (max_value_app2, 'Hello')]
+                        }
+                    """
+                    result_fields_map = collections.OrderedDict({i:[] for i in
+                        cpu_type_set})
+                    for app, cpu in itertools.product(app_name_set, cpu_type_set):
+                        temp = {}
+                        found = False
+                        for index, record in enumerate(figure_needed_record_list):
+                            if record.cpu_type == cpu and record.__getattribute__(
+                                    child_app_name) == app:
+                                found = True
+                                temp[index] = record.__getattribute__(result_fields[0])
+                        if not found:
+                            max_value = 0
+                            alias_field_map = {}
+                            # TODO: add alias fields
+                        else:
+                            temp_keys = list(temp.keys())
+                            temp_values = list(temp.values())
+                            max_value = max(temp_values)
+                            max_index = temp_values.index(max_value)
+                            max_record = figure_needed_record_list[max_index]
+                            alias_field_map = {i:max_record.__getattribute__(i) for i 
+                                in result_alias_fields}
+                        result_fields_map[cpu].append((max_value, alias_field_map))
+                else:
+                    # {cpu1: (max_value, 'Hello'), cpu2: (max_value, 'Hello')}
+                    app_name_set = ('Default', )
+                    for cpu in cpu_type_set:
+                        temp = {}
+                        for index, record in enumerate(figure_needed_record_list):
+                            if record.cpu_type == cpu:
+                                temp[index] = record.__getattribute__(result_fields[0])
+                        temp_keys = list(temp.keys())
+                        temp_values = list(temp.values())
+                        max_value = max(temp_values)
+                        max_index = temp_values.index(max_value)
+                        max_record = figure_needed_record_list[max_index]
+                        alias_field_map = {i:max_record.__getattribute__(i) for i 
+                            in result_alias_fields}
+                        result_fields_map[cpu] = [(max_value, alias_field_map)]
+                kwargs['graph_y_field'] = result_fields[0]
+                kwargs['app_name_set'] = app_name_set
+                kwargs['result_fields_map'] = result_fields_map
+            else:
+                self.template_name = 'performance/search/result_figure.html'
+                result_fields_value_list = []
+                for record in figure_needed_record_list:
+                    result_x_value = 1000 * int(
+                            record.record_result_time.strftime('%s'))
+                    result_y_value = record.__getattribute__(result_fields[0])
+                    result_fields_value_list.append((
+                            result_x_value, {result_fields[0]: result_y_value}, 
+                            {i:record.__getattribute__(i) for i 
+                                in result_alias_fields},))
+                result_fields_map = {j:[] for j in {i[2]['cpu_type'] for i in
+                    result_fields_value_list}}
+                for i in result_fields_value_list:
+                    record_cpu_type = i[2]['cpu_type']
+                    result_fields_map[record_cpu_type].append(i)
+                kwargs['result_fields_map'] = result_fields_map
         elif post_display_form == "table":
             self.template_name = 'performance/search/result_table.html'
             i_field_name_list = self.get_all_field_name(post_app_i_module,
