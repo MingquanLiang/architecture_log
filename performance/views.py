@@ -54,6 +54,7 @@ class ApplicationBaseInformation(object):
                     'number_connections', 'number_threads',
                     'network_bandwidth_datacaching'),
                 'result_fields': ('result_max_rps', ),
+                'best_result': 'max',
                 'result_alias_fields' : ('data_scale', 'number_works',
                     'number_connections', 'number_threads', 
                     # 'network_bandwidth_datacaching', 'reference_link', ),
@@ -69,6 +70,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('node', 'phycpu', 'stride_size',
                     'thread_number_lmbench'),
                 'result_fields': ('result_time', ),
+                'best_result': 'min',
                 'result_alias_fields' : ('thread_number_lmbench', 'node', 'phycpu',
                     'stride_size', 'reference_link', 'cpu_type'),
                 }
@@ -80,6 +82,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ('thread_number_parsec', 'app_name_parsec', 'input_set'),
                 'result_fields': ('result_time', ),
+                'best_result': 'min',
                 'result_alias_fields' : ('thread_number_parsec',
                     'app_name_parsec', 'input_set', 'reference_link',
                     'cpu_type'),
@@ -92,6 +95,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ('app_name_siriussuit', 'pthread_num', 'dataset_size'),
                 'result_fields': ('result_run_time', ),
+                'best_result': 'min',
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors', 'cpu_type'),
                 }
@@ -104,6 +108,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('data_size','processor_number', 
                     'partition_size', 'workers', ),
                 'result_fields': ('result_time', ),
+                'best_result': 'min',
                 'result_alias_fields' : ('data_size', 'partition_size',
                     'workers', 'processor_number', 'reference_link',
                     'cpu_type'),
@@ -118,6 +123,7 @@ class ApplicationBaseInformation(object):
                 # TODO: more than one result fields.
                 'result_fields': ('result_int_rate_ratio',
                     'result_fp_rate_ratio', ),
+                'best_result': 'max',
                 'result_alias_fields' : ('copies','reference_link', 'cpu_type'),
                 }
         self.app_infor['specjbb'] = {
@@ -129,6 +135,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('jvm_parameter_specjbb','jvm_instances',
                     'warehouses'),
                 'result_fields': ('result_bops', ),
+                'best_result': 'max',
                 'result_alias_fields' : ('jvm_parameter_specjbb',
                     'jvm_instances', 'warehouses', 'reference_link',
                     'cpu_type'),
@@ -142,6 +149,7 @@ class ApplicationBaseInformation(object):
                 'choice_fields': ('app_name_specjvm','jvm_parameter_specjvm', 
                     'specjvm_parameter'),
                 'result_fields': ('result_bops', ),
+                'best_result': 'max',
                 'result_alias_fields' : ('jvm_parameter_specjvm', 
                     'specjvm_parameter', 'reference_link', 'cpu_type'),
                 }
@@ -153,6 +161,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ('problem_size', 'app_name_splash'),
                 'result_fields': ('result_time', ),
+                'best_result': 'min',
                 'result_alias_fields' : ('problem_size', 'app_name_splash', 
                     'reference_link', 'cpu_type'),
                 }
@@ -164,6 +173,7 @@ class ApplicationBaseInformation(object):
                 'range_fields': None,
                 'choice_fields': ('warehouses', 'terminals'),
                 'result_fields': ('result_tpmc', ),
+                'best_result': 'max',
                 'result_alias_fields' : ('warehouses', 'terminals', 
                     'reference_link', 'cpu_type'),
                 }
@@ -179,6 +189,7 @@ class ApplicationBaseInformation(object):
                     #'worker_processes', 'worker_connection',
                     'network_bandwidth_webserving', ),
                 'result_fields': ('result_ops', ),
+                'best_result': 'max',
                 'result_alias_fields': ('reference_link', 'result_passed', 
                     'result_warnings', 'result_errors', 'warm_up', 'con_users',
                     'pm_static', 'pm_max_connections', 'sql_max_connections',
@@ -452,6 +463,7 @@ class SearchResultView(generic.TemplateView):
                 'machine_fields']
         child_app_attr, child_app_name = self.apps_base_infors[post_application][
                 'multi_child_app']
+        post_best_result = self.apps_base_infors[post_application]['best_result']
 
         # get all chosen options of user and extract filter condition - start
         base_search_item_value_map = {}
@@ -659,7 +671,10 @@ class SearchResultView(generic.TemplateView):
                         else:
                             temp_keys = list(temp.keys())
                             temp_values = list(temp.values())
-                            max_value = max(temp_values)
+                            if post_best_result == 'max':
+                                max_value = max(temp_values)
+                            elif post_best_result == 'min':
+                                max_value = min(temp_values)
                             max_index = temp_values.index(max_value)
                             max_record = figure_needed_record_list[max_index]
                             alias_field_map = {i:max_record.__getattribute__(i) for i 
@@ -675,7 +690,10 @@ class SearchResultView(generic.TemplateView):
                                 temp[index] = record.__getattribute__(result_fields[0])
                         temp_keys = list(temp.keys())
                         temp_values = list(temp.values())
-                        max_value = max(temp_values)
+                        if post_best_result == 'max':
+                            max_value = max(temp_values)
+                        elif post_best_result == 'min':
+                            max_value = min(temp_values)
                         max_index = temp_values.index(max_value)
                         max_record = figure_needed_record_list[max_index]
                         alias_field_map = {i:max_record.__getattribute__(i) for i 
