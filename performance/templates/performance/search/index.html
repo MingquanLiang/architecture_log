@@ -54,10 +54,6 @@
         application_name.focus();return false}
       if (validate_required(project_names,"Please Choose Project Name")==false){
         project_names.focus();return false}
-      /*
-      if (validate_required(architectures,"Please Choose Architecture")==false){
-        architectures.focus();return false}
-      */
       if (validate_required(cpu_types,"Please Choose CPU Type")==false){
         cpu_types.focus();return false}
       if (validate_required(begin_time,"Please Choose Begin Time")==false){
@@ -212,6 +208,9 @@
                   <option value="table">table</option>
                   <option value="figure">figure</option>
                   <option value="graph">graph</option>
+                  <! --
+                  <option value="report">report</option>
+                  -->
                 </select>
               </td>
 
