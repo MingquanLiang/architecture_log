@@ -1,4 +1,4 @@
-from reportlab.platypus import TableStyle, Table, SimpleDocTemplate
+from reportlab.platypus import TableStyle, Table, SimpleDocTemplate, Image
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.platypus.paragraph import Paragraph
@@ -104,3 +104,8 @@ def show_figure(data, y_max, x_category, legend_category):
     swatches.colorNamePairs = items
     drawing.add(swatches, 'legend')
     return drawing
+
+
+def insert_image(image_path, width, height):
+    c = Image(image_path, width, height)
+    return c

@@ -1,4 +1,4 @@
-# import sys
+import os
 import datetime
 import copy
 import math
@@ -10,12 +10,10 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 
-# --------------------- report ------------------- #
 from reportlab.platypus import SimpleDocTemplate
 from .report_conf import h1_style, h2_style, h4_style
 from .report_conf import insert_space, show_content, show_main_table, \
-        show_conf_table, show_figure
-# --------------------- report ------------------- #
+        show_conf_table, show_figure, insert_image
 
 from .models import ProjectInformation
 # from .models import HardwareEnvironment
@@ -455,7 +453,6 @@ class SearchResultView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         # the context being rendered store into kwargs
         kwargs = {}
-        # FIXME: webserving can NOT use this post !!!!!!
         all_post_data = request.POST
 
         # base search items
@@ -618,7 +615,8 @@ class SearchResultView(generic.TemplateView):
         # merge same value because ForeignKey in .models
         id_list = self.get_same_element_in_list(i_id_list, m_id_list)
         # get all chosen options of user and extract filter condition - end
-        # ------------------------------------------------------------------#
+        # From here: all display form are based on the id_list filter from
+        # user's input
 
         # public kwargs
         kwargs['base_search_item_value_map'] = base_search_item_value_map
@@ -652,7 +650,7 @@ class SearchResultView(generic.TemplateView):
                 kwargs['graph_y_field'] = graph_y_field
                 kwargs['result_fields_value_list'] = result_fields_value_list
         elif post_display_form == "figure":
-            # FIXME: should be get all result fields in production.
+            # FIXME: should be get all result fields.
             result_fields = self.apps_base_infors[
                     post_application]['result_fields']
             result_alias_fields = self.apps_base_infors[
@@ -669,7 +667,7 @@ class SearchResultView(generic.TemplateView):
                 if child_app_attr:
                     app_name_set = tuple({i.__getattribute__(child_app_name)
                                           for i in figure_needed_record_list})
-                    """{
+                    """eg: {
                         cpu1: [(max_value_app1, 'Hello'), (max_value_app2, 'Hello')], 
                         cpu2: [(max_value_app1, 'Hello'), (max_value_app2, 'Hello')]
                         }
@@ -689,7 +687,6 @@ class SearchResultView(generic.TemplateView):
                         if not found:
                             max_value = 0
                             alias_field_map = {}
-                            # TODO: add alias fields
                         else:
                             max_value = temp[0][1]
                             max_index = temp[0][0]
@@ -708,7 +705,6 @@ class SearchResultView(generic.TemplateView):
                                                for i in result_alias_fields}
                         result_fields_map[cpu].append((max_value, alias_field_map))
                 else:
-                    # {cpu1: (max_value, 'Hello'), cpu2: (max_value, 'Hello')}
                     app_name_set = ('Default', )
                     for cpu in cpu_type_set:
                         temp = []
@@ -804,12 +800,11 @@ class SearchResultView(generic.TemplateView):
             response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
             lst = []
             # -------- all needed original data from here -------------#
-            logo_data = 'POWERCORE http://www.powercore.com.cn'
+            # logo_data = 'POWERCORE http://www.powercore.com.cn'
             report_title_data = 'The Test Report On Application of {0}'.format(
                     post_application)
             main_table_title_data = 'Table 1: The Test Environment of {0}'.format(post_application)
             main_table_data = []
-            # part1 ======================================================= content_in_main_table_data  -- begin
             mtd_header = ('CPU\nType', 'Role', 'Machine\nName', 'Architecture',
                     'CPU Clock\nRate(GHZ)', 'L2 Cache\n(KB)', 'L3 Cache\n(KB)',
                     'Operation\nSystem', 'Kernel\nVersion', 'Endian\nMode')
@@ -849,9 +844,6 @@ class SearchResultView(generic.TemplateView):
                     main_table_data.append(tmp)
                 if start < index:
                     mtd_index_list.append((start, index))  # here: stop = index
-            # part1 =======================================================            # content_in_main_table_data  -- end
-
-            # XXX: main table is not related to conf table
 
             conf_table_title_data = 'Table 2: The Configurations of {0}'.format(
                     post_application)
@@ -964,9 +956,14 @@ class SearchResultView(generic.TemplateView):
                 main_figure_data.append(tmp)
 
             space_05 = insert_space()
-            logo = show_content(logo_data, h1_style)
+            # logo = show_content(logo_data, h1_style)
+            logo_image_path = os.path.join('./performance/static/performance/img/',
+                    'image_powercore.png')
+            print('path is ', os.getcwd())
+            # logo_image = insert_image(logo_image_path, 370, 72)
+            # pls use command to get image's size: file image_filename
+            logo_image = insert_image(logo_image_path, 208, 47)
             report_title = show_content(report_title_data, h2_style)
-            # TODO: Pls change the show_*_table function
             main_table_title = show_content(main_table_title_data, h4_style)
             main_table = show_main_table(main_table_data, mtd_index_list)
             conf_table_title = show_content(conf_table_title_data, h4_style)
@@ -975,7 +972,8 @@ class SearchResultView(generic.TemplateView):
             main_figure = show_figure(main_figure_data, y_max, x_category,
                                       cpu_type_set)
 
-            lst.append(logo)
+            # lst.append(logo)
+            lst.append(logo_image)
             lst.append(space_05)
             lst.append(report_title)
             lst.append(space_05)
@@ -988,11 +986,9 @@ class SearchResultView(generic.TemplateView):
             lst.append(main_figure_title)
             lst.append(main_figure)
 
-            # -------- add all needed content from here -------------#
             SimpleDocTemplate(response, showBoundary=0, leftMargin=10,
                               rightMargin=10, topMargin=10, buttomMargin=10
                               ).build(lst)
-            # context = self.get_context_data(**kwargs)
             return response
         else:
             self.template_name = 'performance/search/result_error.html'
