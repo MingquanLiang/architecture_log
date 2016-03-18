@@ -864,7 +864,8 @@ class SearchResultView(generic.TemplateView):
                     post_application]['result_alias_fields']
             result_alias_fields = []
             for i in result_alias_fields_bak:
-                if i == 'reference_link' or i == 'cpu_type':
+                if i == 'reference_link' or i == 'cpu_type' \
+                    or 'app_name_' in i:
                     continue
                 else:
                     result_alias_fields.append(i)
