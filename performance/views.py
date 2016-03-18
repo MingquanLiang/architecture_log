@@ -949,7 +949,7 @@ class SearchResultView(generic.TemplateView):
                 # remove first_col for the application without app_name
                 conf_table_data_trans = conf_table_data_trans[1:]
 
-            main_figure_title_data = 'Main Figure Name Here'
+            main_figure_title_data = 'Figure 1: Best Result in Different App Names and CPU Types'
             main_figure_data = []
             y_max = int(max(main_figure_maps.values()) * 1.5)
             if child_app_attr:
