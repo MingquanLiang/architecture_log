@@ -10,7 +10,12 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 
-from reportlab.pdfgen import canvas
+# --------------------- report ------------------- #
+from reportlab.platypus import SimpleDocTemplate
+from .report_conf import h1_style, h2_style, h4_style
+from .report_conf import insert_space, show_content, show_main_table, \
+        show_conf_table, show_figure
+# --------------------- report ------------------- #
 
 from .models import ProjectInformation
 # from .models import HardwareEnvironment
@@ -673,26 +678,31 @@ class SearchResultView(generic.TemplateView):
                                                                  cpu_type_set})
                     for app, cpu in itertools.product(app_name_set,
                                                       cpu_type_set):
-                        temp = {}
+                        temp = []
                         found = False
                         for index, record in enumerate(figure_needed_record_list):
                             if record.cpu_type == cpu and record.__getattribute__(
                                     child_app_name) == app:
                                 found = True
-                                temp[index] = record.__getattribute__(
-                                    result_fields[0])
+                                temp.append((index,record.__getattribute__(
+                                        result_fields[0])))
                         if not found:
                             max_value = 0
                             alias_field_map = {}
                             # TODO: add alias fields
                         else:
-                            temp_keys = list(temp.keys())
-                            temp_values = list(temp.values())
+                            max_value = temp[0][1]
+                            max_index = temp[0][0]
                             if post_best_result == 'max':
-                                max_value = max(temp_values)
+                                for ii in temp:
+                                    if ii[1] > max_value:
+                                        max_index = ii[0]
+                                        max_value = ii[1]
                             elif post_best_result == 'min':
-                                max_value = min(temp_values)
-                            max_index = temp_values.index(max_value)
+                                for ii in temp:
+                                    if ii[1] < max_value:
+                                        max_index = ii[0]
+                                        max_value = ii[1]
                             max_record = figure_needed_record_list[max_index]
                             alias_field_map = {i: max_record.__getattribute__(i)
                                                for i in result_alias_fields}
@@ -701,17 +711,23 @@ class SearchResultView(generic.TemplateView):
                     # {cpu1: (max_value, 'Hello'), cpu2: (max_value, 'Hello')}
                     app_name_set = ('Default', )
                     for cpu in cpu_type_set:
-                        temp = {}
+                        temp = []
                         for index, record in enumerate(figure_needed_record_list):
                             if record.cpu_type == cpu:
-                                temp[index] = record.__getattribute__(result_fields[0])
-                        temp_keys = list(temp.keys())
-                        temp_values = list(temp.values())
+                                temp.append((index,record.__getattribute__(
+                                        result_fields[0])))
+                        max_value = temp[0][1]
+                        max_index = temp[0][0]
                         if post_best_result == 'max':
-                            max_value = max(temp_values)
+                            for ii in temp:
+                                if ii[1] > max_value:
+                                    max_index = ii[0]
+                                    max_value = ii[1]
                         elif post_best_result == 'min':
-                            max_value = min(temp_values)
-                        max_index = temp_values.index(max_value)
+                            for ii in temp:
+                                if ii[1] < max_value:
+                                    max_index = ii[0]
+                                    max_value = ii[1]
                         max_record = figure_needed_record_list[max_index]
                         alias_field_map = {i: max_record.__getattribute__(i)
                                            for i in result_alias_fields}
@@ -736,27 +752,6 @@ class SearchResultView(generic.TemplateView):
                     record_cpu_type = i[2]['cpu_type']
                     result_fields_map[record_cpu_type].append(i)
                 kwargs['result_fields_map'] = result_fields_map
-        elif post_display_form == "report":
-            self.template_name = 'performance/search/report_output.html'
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="test.pdf"'
-            p = canvas.Canvas(response)
-            p.setPageSize((500, 1000))
-            p.setTitle('POWERCORE Performance Analysis Report-{0}'.format(
-                       post_application))
-            p.drawString(250, 500, "drawString")
-            print("--------------------------")
-            print(p.getCurrentPageContent())
-            print("--------------------------")
-            #p.drawAlignedString(20, 60, "Aligned")
-            #p.drawCentredString(10, 20, "drawCentredString")
-            #p.drawRightString(10, 20, "drawRightString")
-            #p.showPage()
-            #p.pageHasData()
-            #p.showOutline()
-            p.save()
-            # context = self.get_context_data(**kwargs)
-            return response
         elif post_display_form == "table":
             self.template_name = 'performance/search/result_table.html'
             i_field_name_list = self.get_all_field_name(post_app_i_module,
@@ -802,6 +797,202 @@ class SearchResultView(generic.TemplateView):
             else:
                 kwargs['m_module_header'] = m_field_verbose_name_list
             kwargs['record_value_list'] = record_value_list
+        elif post_display_form == "report":
+            self.template_name = 'performance/search/report_output.html'
+            filename = 'test.pdf'
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+            lst = []
+            # -------- all needed original data from here -------------#
+            logo_data = 'POWERCORE http://www.powercore.com.cn'
+            report_title_data = 'The Test Report On Application of {0}'.format(
+                    post_application)
+            main_table_title_data = 'Table 1: The Test Environment of {0}'.format(post_application)
+            main_table_data = []
+            # part1 ======================================================= content_in_main_table_data  -- begin
+            mtd_header = ('CPU\nType', 'Role', 'Machine\nName', 'Architecture',
+                    'CPU Clock\nRate(GHZ)', 'L2 Cache\n(KB)', 'L3 Cache\n(KB)',
+                    'Operation\nSystem', 'Kernel\nVersion', 'Endian\nMode')
+            mtd_list = ('machine_side', 'machine_name', 'architecture_type',
+                    'cpu_frequency', 'l2', 'l3', 'os_type', 'kernel_version',
+                    'byte_order')
+            main_table_data.append(mtd_header)
+            mtd_index_list = []
+            index = 0
+            # get random record has different cpu_type
+            cpu_id_map = {i[1]: i[0] for i in post_app_i_module.objects.
+                          values_list('id','cpu_type').distinct()}
+            id_cpu_map = {j:i for i, j in cpu_id_map.items()}
+            main_table_id_list = [i for i in cpu_id_map.values()]
+            for id_value in main_table_id_list:
+                mtd_cpu_type = id_cpu_map[id_value]
+                mtd_records = [i for i in post_app_m_module.objects.filter(
+                    app_information_id__exact=id_value)]
+                first_time = True
+                for record in mtd_records:
+                    tmp = []
+                    index += 1
+                    if first_time:
+                        tmp.append(mtd_cpu_type)
+                        start = index
+                        first_time = False
+                    else:
+                        tmp.append(None)
+                    for i in mtd_list:
+                        field_value = record.__getattribute__(i)
+                        if i == 'machine_side':
+                            tmp.append(field_value.replace('_side', ''))
+                        elif i == 'byte_order':
+                            tmp.append(field_value.replace('_endian', ''))
+                        else:
+                            tmp.append(field_value)
+                    main_table_data.append(tmp)
+                if start < index:
+                    mtd_index_list.append((start, index))  # here: stop = index
+            # part1 =======================================================            # content_in_main_table_data  -- end
+
+            # XXX: main table is not related to conf table
+
+            conf_table_title_data = 'Table 2: The Configurations of {0}'.format(
+                    post_application)
+            conf_table_data = []
+            # child_app_attr, child_app_name
+            # content_in_conf_table_data  -- begin
+            result_fields = self.apps_base_infors[
+                    post_application]['result_fields']
+            result_alias_fields_bak = self.apps_base_infors[
+                    post_application]['result_alias_fields']
+            result_alias_fields = []
+            for i in result_alias_fields_bak:
+                if i == 'reference_link' or i == 'cpu_type':
+                    continue
+                else:
+                    result_alias_fields.append(i)
+            result_alias_fields_len = len(result_alias_fields)
+            needed_records = [i for i in i_module_needed_queryset.order_by(
+                              'record_result_time') if i.id in id_list]
+            conf_maps = {}
+            cpu_type_set = tuple({i.cpu_type for i in needed_records})
+            if child_app_attr:
+                app_name_set = tuple({i.__getattribute__(child_app_name)
+                                      for i in needed_records})
+                for app, cpu in itertools.product(app_name_set, cpu_type_set):
+                    conf_maps[(app, cpu)] = []
+            else:
+                for cpu in cpu_type_set:
+                    conf_maps[('Default', cpu)] = []
+            for record in needed_records:
+                result_list = []
+                conf_cpu_type = record.cpu_type
+                if child_app_attr:
+                    conf_app_name = record.__getattribute__(child_app_name)
+                else:
+                    conf_app_name = 'Default'
+                conf_result = record.__getattribute__(result_fields[0])
+                result_list.append(conf_result)
+                conf_values = [record.__getattribute__(i) for i in
+                               result_alias_fields]
+                result_list += conf_values
+                conf_maps[(conf_app_name, conf_cpu_type)].append(result_list)
+            conf_table_data = []
+            cpu_type_col_name = 'CPU Type'
+            if child_app_attr:
+                app_name_col_name = 'App Names'
+            else:
+                app_name_col_name = 'Default App Name'
+            first_col = [app_name_col_name, cpu_type_col_name]
+            for i in result_alias_fields:
+                first_col.append(i)
+            conf_table_data.append(first_col)
+            main_figure_maps = {}
+            for app_cpu, result_list in conf_maps.items():
+                col_values = [app_cpu[0], app_cpu[1]]
+                if not result_list:
+                    col_values += ['-' for _ in range(result_alias_fields_len)]
+                    conf_table_data.append(col_values)
+                    main_figure_maps[app_cpu] = 0
+                    continue
+                best_result = result_list[0]
+                for i in result_list:
+                    if post_best_result == 'max' and i[0] > best_result[0]:
+                        best_result = i
+                    elif post_best_result == 'min' and i[0] < best_result[0]:
+                        best_result = i
+                main_figure_maps[app_cpu] = best_result[0]
+                col_values += best_result[1:]
+                conf_table_data.append(col_values)
+            if child_app_attr:
+                conf_table_data_sorted = sorted(conf_table_data,
+                                                key=lambda x:x[0])
+            else:
+                conf_table_data_sorted = sorted(conf_table_data,
+                                        key=lambda x:x[1] != cpu_type_col_name)
+            # Transpose the conf_table_data
+            conf_table_data_trans = []
+            col_width = len(conf_table_data_sorted[0])
+            for i in range(col_width):
+                conf_table_data_trans.append([x[i] for x in
+                    conf_table_data_sorted])
+            ctd_index_list = []
+            if child_app_attr:
+                # Can NOT use app_name_set to replace app_name_set_order here
+                app_name_set_order = []
+                for i in conf_table_data_trans[0][1:]:
+                    if i not in app_name_set_order:
+                        app_name_set_order.append(i)
+                for i in app_name_set_order:
+                    start = conf_table_data_trans[0].index(i)
+                    num = conf_table_data_trans[0].count(i)
+                    stop = start + num - 1
+                    ctd_index_list.append((start, stop))
+            else:
+                # remove first_col for the application without app_name
+                conf_table_data_trans = conf_table_data_trans[1:]
+
+            main_figure_title_data = 'Main Figure Name Here'
+            main_figure_data = []
+            y_max = int(max(main_figure_maps.values()) * 1.5)
+            if child_app_attr:
+                x_category = app_name_set
+            else:
+                x_category = ['Default']
+            for cpu in cpu_type_set:
+                tmp = []
+                for app in x_category:
+                    tmp.append(main_figure_maps[(app, cpu)])
+                main_figure_data.append(tmp)
+
+            space_05 = insert_space()
+            logo = show_content(logo_data, h1_style)
+            report_title = show_content(report_title_data, h2_style)
+            # TODO: Pls change the show_*_table function
+            main_table_title = show_content(main_table_title_data, h4_style)
+            main_table = show_main_table(main_table_data, mtd_index_list)
+            conf_table_title = show_content(conf_table_title_data, h4_style)
+            conf_table = show_conf_table(conf_table_data_trans, ctd_index_list)
+            main_figure_title = show_content(main_figure_title_data, h4_style)
+            main_figure = show_figure(main_figure_data, y_max, x_category,
+                                      cpu_type_set)
+
+            lst.append(logo)
+            lst.append(space_05)
+            lst.append(report_title)
+            lst.append(space_05)
+            lst.append(main_table_title)
+            lst.append(main_table)
+            lst.append(space_05)
+            lst.append(conf_table_title)
+            lst.append(conf_table)
+            lst.append(space_05)
+            lst.append(main_figure_title)
+            lst.append(main_figure)
+
+            # -------- add all needed content from here -------------#
+            SimpleDocTemplate(response, showBoundary=0, leftMargin=10,
+                              rightMargin=10, topMargin=10, buttomMargin=10
+                              ).build(lst)
+            # context = self.get_context_data(**kwargs)
+            return response
         else:
             self.template_name = 'performance/search/result_error.html'
 
