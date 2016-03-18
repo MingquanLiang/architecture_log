@@ -799,7 +799,7 @@ class SearchResultView(generic.TemplateView):
             kwargs['record_value_list'] = record_value_list
         elif post_display_form == "report":
             self.template_name = 'performance/search/report_output.html'
-            filename = 'test.pdf'
+            filename = '{0}_test_report.pdf'.format(post_application)
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
             lst = []
