@@ -107,5 +107,5 @@ def show_figure(data, y_max, x_category, legend_category):
 
 
 def insert_image(image_path, width, height):
-    c = Image(image_path, width, height)
+    c = Image(image_path, width, height, hAlign='LEFT')
     return c
